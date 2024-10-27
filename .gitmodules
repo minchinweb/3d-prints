@@ -1,0 +1,3 @@
+[submodule "libs/Chamfers-for-OpenSCAD"]
+	path = libs/Chamfers-for-OpenSCAD
+	url = https://github.com/SebiTimeWaster/Chamfers-for-OpenSCAD.git
