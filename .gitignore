@@ -3,6 +3,8 @@
 *.webp
 *.jpg
 *.png
+*.xcf
+*.tif
 
 *.avi
 *.zip
