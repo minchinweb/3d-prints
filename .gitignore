@@ -8,6 +8,7 @@
 
 *.avi
 *.zip
+*.rar
 
 *.stl
 *.3mf
@@ -18,7 +19,11 @@
 *.scene
 *.SLDPRT
 *.step
+*.mg  # Meshroom
 
 Thumbs.db
+.DS_Store
 
 0013*/
+**/MeshroomCache/*
+**/.venv*/
