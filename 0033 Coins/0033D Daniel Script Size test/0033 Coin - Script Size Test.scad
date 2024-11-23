@@ -14,27 +14,30 @@ edge_wall_thickness = 0.22 * 3;
 name_image = "../0033B Daniel Sou Noir/Name A - Daniel - 20241027.png";
 name_pixels = 300;
 name_rotate = 335;
-name_delta_x = 1;
+name_delta_x = 11;
 name_delta_y = 0;
+name_scale = 1.905;  // 40/21
 
 /* [Coin Elements - Year] */
 year_image = "../0033B Daniel Sou Noir/Year A - 2024 - 20241027.png";
 year_pixels = 300;
-year_rotate = 315;
+year_rotate = 305;
 year_delta_x = 0;
-year_delta_y = -0.7;
+year_delta_y = -7.2;
+year_scale = 1.619;  // 34/21
 
 /* [Coin Elements - Value] */
 value_image = "../0033B Daniel Sou Noir/Value A - sou noir - 20241027.png";
 value_pixels = 300;
-value_rotate = 0;
-value_delta_x = -0.7;
-value_delta_y = 0.4;
+value_rotate = 345;
+value_delta_x = -5;
+value_delta_y = 2.3;
+value_scale = 1.333;  // 28/21
 
 /* [Coin Elements - Scale] */
 scale_font_size = 5;
-scale_delta_x = -0.7;
-scale_delta_y = 0.4;
+scale_delta_x = 0;
+scale_delta_y = 0;
 
 
 /* [Rendering] */
@@ -45,7 +48,7 @@ cylinder_faces = 60;
 diameter = 21;
 //test_sizes = [16, 17, 18, 19, 21, 23, 24, 25, 27, 28, 31, 32, 38, 40];
 test_sizes = [16, 18, 21, 23, 25, 28, 31, 34, 38, 40];
-tests = "yes";  // ["yes", "no"]
+tests = "no";  // ["yes", "no"]
 // offset tests my this, should be greater than largest test size, in mm
 test_offset = 42;
 test_coins_per_row = 5;
@@ -70,9 +73,9 @@ module test_side(
     add_scale = true
 ) {
     master_scale = coin_diameter / diameter;
-    name_xy_scale = coin_diameter / name_pixels;
-    year_xy_scale = coin_diameter / year_pixels;
-    value_xy_scale = coin_diameter / value_pixels;
+    name_xy_scale = coin_diameter / name_pixels * name_scale;
+    year_xy_scale = coin_diameter / year_pixels * year_scale;
+    value_xy_scale = coin_diameter / value_pixels * value_scale;
     z_scale = profile_depth / 100;
     
     // face "base"
