@@ -1,3 +1,6 @@
 [submodule "libs/Chamfers-for-OpenSCAD"]
 	path = libs/Chamfers-for-OpenSCAD
 	url = https://github.com/SebiTimeWaster/Chamfers-for-OpenSCAD.git
+[submodule "libs/gflabel"]
+	path = libs/gflabel
+	url = https://github.com/ndevenish/gflabel.git
