@@ -1,14 +1,14 @@
 //upper text line
-textstring1="PLA";
+textstring1="Bambu PLA Basic";
 
 //Set font size in mm
 textsize_upper=5; 
 
 //Left lower text line, e.g. for layer thickness, print temperature
-textstring2=".2  215C";
+textstring2="0.4mm  220°C";
 
 //Right lower text line, e.g. for the color of the filament
-textstring3="Tri-color";
+textstring3="Jade White";
 
 //Set font size in mm
 textsize_lower=5; 
@@ -44,28 +44,28 @@ thole_top_shiftright=2.05;
      
 //Types of test circles? (You can e.g. have several filament holes for multi-color filaments)
 //Types available are None,Sphere,CylinderHole,Overhang,HangingCylinder,Pyramids,Filament,HangingCube
-tests=["None","Sphere","CylinderHole","Overhang","HangingCylinder","Pyramids","Filament"];
+tests=["None","Sphere","CylinderHole","Pyramids"];
 //tests=["None","Sphere","CylinderHole","Overhang","HangingCylinder","Filament","Filament"];//dual color filament
 //tests=["None","Sphere","CylinderHole","Overhang","Filament","Filament","Filament"];//triple color filament
 test_circles=len(tests)-1;//[0:6]
 
 // Thickness progression of the 'layers' is taken from https://www.thingiverse.com/thing:3067940 : 0.2, 0.4, 0.6, 0.8, 1.0, 1.6, without the 2.25 mm. If you put a negative number here, it will generate a "bridge" structure of the respective thickness.
-steps_thickness=[-.6, 0.2, 0.4, 0.6, 0.8, 1.0, 1.6]; 
+steps_thickness=[-.6, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]; 
 
 //Switch on or off the text to indicate the thickness on the steps
 steps_text="enabled";//[enabled,disabled]
 
 //Set font size on the thickness steps in mm. These show the step size below (0.2, 0.4, ...). 
-steps_textsize=5;
+steps_textsize=4;
 
 //textheight on thickness steps
-steps_textheight=.4;
+steps_textheight=.3;
 
 //Set wether the leading zeroes should be visible on the thickness steps.
-steps_text_format="enforce leading zero 0._";//["enforce leading zero 0._","enforce leading and trailing zero 0.0","no enforcing _._"]
+steps_text_format="enforce leading and trailing zero 0.0";//["enforce leading zero 0._","enforce leading and trailing zero 0.0","no enforcing _._"]
 
 //rotate the text on the steps by 90 degree?
-steps_text_rotate="no";//[yes,no]
+steps_text_rotate="yes";//[yes,no]
 
 //Swatch size. This is compatible to Jaxels box. Other sizes are e.g. 75,40,3. First is swatch Width
 w=79.5; 
@@ -456,7 +456,7 @@ module swatch(text_type)
             if (steps_text=="enabled")
             {
                 rotate([0,0,(steps_text_rotate=="yes"?90:0)])
-                translate([ (steps_text_rotate=="yes"?one_steparea_w/3:-one_steparea_w/10)
+                translate([ (steps_text_rotate=="yes"?one_steparea_w/2:-one_steparea_w/10)
                             ,(steps_text_rotate=="yes"?wall*.5:wall*2)
                             ,(steps_thickness[i]<0?th-textheight_bridge:steps_thickness[i]+step_thickness_correction)])
                     linear_extrude(height=(steps_thickness[i]<0?textheight_bridge+step_thickness_correction:textheight),convexity = 10)
