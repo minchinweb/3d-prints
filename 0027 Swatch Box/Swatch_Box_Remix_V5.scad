@@ -7,7 +7,7 @@ part = "both";               // [top, bot, both]
 // Pegboard_holder
 Pegboard_holder = "no";               // [yes,no]
 // Number of swatches to box will hold
-swatches = 40;              // [10:100]
+swatches = 4;              // [10:100]
 // Text to print on top cover (Line 1)
 text1 = "FILAMENT";
 // Text to print on top cover (Line 2)
@@ -17,7 +17,7 @@ fontsize=12;
 font="Aldo";
 
 //Number of boxes side by side
-side_by_side_boxes=2;
+side_by_side_boxes=1;
 
 /* [Case Dimensions] */
 
@@ -39,13 +39,13 @@ slot_l = 3;					// [0:10]
 // Width (mm) of slot separators
 slot_w = .8;					// [1:3]
 // Height (mm) of slot separators
-slot_h = 20;				// [10:30]
+slot_h = 15;				// [10:30]
 
 // [Swatch Dimensions] 
 // Length (mm) of each swatch
-swatch_x = 80;
+swatch_x = 79.5;
 // Width (mm) of each swatch
-swatch_y = 2.5;
+swatch_y = 2.4;
 // Height (mm) of each swatch
 swatch_z = 30;
 
