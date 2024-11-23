@@ -8,7 +8,7 @@ textsize_upper=5;
 textstring2="0.4mm  220°C";
 
 //Right lower text line, e.g. for the color of the filament
-textstring3="Jade White";
+textstring3="Black";
 
 //Set font size in mm
 textsize_lower=5; 
@@ -41,7 +41,7 @@ tack_hole="none";//[top, right, both, none]
 //tack hole diameter
 thole_d=1.5;
 thole_top_shiftright=2.05;
-     
+
 //Types of test circles? (You can e.g. have several filament holes for multi-color filaments)
 //Types available are None,Sphere,CylinderHole,Overhang,HangingCylinder,Pyramids,Filament,HangingCube
 tests=["None","Sphere","CylinderHole","Pyramids"];
@@ -74,7 +74,7 @@ w=79.5;
 h=30; 
 
 //Swatch Thickness, should be >=.18mm. 
-th=2.2;
+th=2.4;
  
 //Swatch roundness radius
 round=5;
@@ -89,7 +89,7 @@ linesep=1.4;
 r_hole=2;
 
 //side indents to take out the swatch from the box. set to 0 to have no indents
-r_indent=2;
+r_indent=3;
  
 
 /* [Hidden] */
@@ -278,14 +278,14 @@ module rounded_square_test_pattern_raised(x,y,z,r,text_type)
                     }
                     cylinder(r=r_testhole, h=th+.2, center=true);
                 }               
- 
+
             //overhang test
             bridge_h=.2;
             bridge_pos=(text_type=="raised"?th-font_recessed-bridge_h:th/2) ;
             if(tests[i]=="Overhang")
                 translate([-r_hole/2,-r_hole,0])
                     cube([r_hole,r_hole*2,bridge_h],center=false);
-                 
+
 
             //hanging cylinder test
             testradius=(z-.3)/2;
@@ -295,7 +295,7 @@ module rounded_square_test_pattern_raised(x,y,z,r,text_type)
                         cylinder(r=testradius,h=r_hole*1.7,center=false);
                         
 
- 
+
             //pyramid test
             testpyramid=z-.3;
             biggerpyramid=1;
@@ -381,7 +381,7 @@ function str_configurable_zero(number) =
 	steps_text_format=="enforce leading zero 0._"?
 		str(abs(number))
 	: steps_text_format=="enforce leading and trailing zero 0.0"?
-		 (round(number)==number? substr(str(abs(number+.01)), pos=0, len=len(str(abs(number+.01)))-1, substr=""):str(abs(number)))
+		(round(number)==number? substr(str(abs(number+.01)), pos=0, len=len(str(abs(number+.01)))-1, substr=""):str(abs(number)))
 	: no_leading_zero(str(abs(number)));
 module swatch(text_type)
 {            
@@ -397,7 +397,7 @@ module swatch(text_type)
     difference()
     {
         rounded_square_test_pattern(w,h,th,round);
-       
+
 
         write_text_on_top(w,h,th,(top_rounded_swatch=="disabled"?wall:round));
         
@@ -485,7 +485,7 @@ module swatch(text_type)
     }
 
 }
- 
+
 
 Debug="false";
 if (Debug!="true")
