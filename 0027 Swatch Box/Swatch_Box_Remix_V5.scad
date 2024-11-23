@@ -7,16 +7,18 @@ part = "both";               // [top, bot, both]
 // Pegboard_holder
 Pegboard_holder = "no";               // [yes,no]
 // Number of swatches to box will hold
-swatches = 4;              // [10:100]
+swatches = 22;              // [10:100]
 // Text to print on top cover (Line 1)
-text1 = "FILAMENT";
+text_1 = "Filament";
 // Text to print on top cover (Line 2)
-text2 = "SWATCHES";
-text3 = "";
-fontsize=12;
+text_2 = "Swatches";
+text_3 = "Wm Minchin";
+font_size=24 / 2.83465;  // convert to points
+font_size_3 = font_size / 2;
+font_size_4 = 8 / 2.83465;  // convert to points
 font="Aldo";
 
-//Number of boxes side by side
+// Number of boxes side by side
 side_by_side_boxes=1;
 
 /* [Case Dimensions] */
@@ -28,7 +30,7 @@ case_h = 2;                 // [2:5]
 // Height (mm) of case overlap
 case_o = 4;                 // [2:5]
 // Length (mm) of snap-in teeth
-case_t = 30;                // [10:40]
+case_t = 20;                // [10:40]
 teeth_d=1.5;
 teeth_d_wiggle=.3;
 
@@ -41,13 +43,14 @@ slot_w = .8;					// [1:3]
 // Height (mm) of slot separators
 slot_h = 15;				// [10:30]
 
-// [Swatch Dimensions] 
+/* [Swatch Dimensions]  */
+
 // Length (mm) of each swatch
-swatch_x = 79.5;
+swatch_x = 79.6;
 // Width (mm) of each swatch
-swatch_y = 2.4;
+swatch_y = 2.6;
 // Height (mm) of each swatch
-swatch_z = 30;
+swatch_z = 31;
 
 /*
 // For Dia frames
@@ -78,7 +81,17 @@ case_x = inner_x + (case_w * 2);
 case_y = inner_y + (case_w * 2);
 case_z = swatch_z + (case_h * 2);
 
-echo (case_x,case_y,case_z);
+echo (case_x, case_y, case_z);
+
+text_4 = str(str(swatches),  " swatches");
+text_5 = str(
+    str(case_x),
+    " x ",
+    str(case_y),
+    " x ",
+    str(case_z),
+    " mm"
+);
 
 //Pegboard pin configuration
 wiggle=.4;
@@ -179,30 +192,30 @@ module CaseTop()
             translate([case_w, case_w, slot_z - slot_h])
                 cube([inner_x, inner_y, case_h]);
             
-            translate([0, 0, slot_z - slot_h + case_h - 0.5+.01])
+            translate([0, 0, slot_z - slot_h + case_h - 0.5 + 0.01])
             linear_extrude(height = 0.5)
             {
-                translate([case_x / 2, (case_y / 2) + fontsize*.8])
+                translate([case_x / 2, (case_y / 2) + font_size*.8])
                 text(
-                    text = text1,
-                    size = fontsize,
+                    text = text_1,
+                    size = font_size,
                     font = font,
                     halign = "center",
                     valign = "center"
                 );
                 
-                translate([case_x / 2, (case_y / 2) - fontsize*.8])
+                translate([case_x / 2, (case_y / 2) - font_size*.8])
                 text(
-                    text = text2,
-                    size = fontsize,
+                    text = text_2,
+                    size = font_size,
                     font = font,
                     halign = "center",
                     valign = "center"
                 );
-                translate([case_x / 2, (case_y / 2) - 3*fontsize*.8])
+                translate([case_x / 2, (case_y / 2) - 3*font_size*.8])
                 text(
-                    text = text3,
-                    size = fontsize,
+                    text = text_3,
+                    size = font_size_3,
                     font = font,
                     halign = "center",
                     valign = "center"
@@ -225,9 +238,9 @@ module CaseBot()
 
     BotWallY(1);
 
-    if(side_by_side_boxes>1)
+    if(side_by_side_boxes > 1)
     {
-        divider_x=case_w+swatch_x + wiggle_x;
+        divider_x=case_w + swatch_x + wiggle_x;
         for(i=[1:1:side_by_side_boxes-1])
             translate([divider_x*i, 0])
             {
@@ -246,9 +259,39 @@ module CaseBot()
         
     translate([case_w, case_w])
     {
-        //color("red")
-            cube([inner_x, inner_y, case_h]);
         
+        difference()
+        {
+            // bottom floor
+            color("blue")    
+            cube([inner_x, inner_y, case_h]);
+
+            // lettering on bottom of case
+            color("orange")
+            linear_extrude(height = 0.5)
+            {
+                translate([case_x - case_w * 3, case_w])
+                rotate(a = [0, 180, 0]) 
+                text(
+                    text_4,
+                    size = font_size_4,
+                    font = font,
+                    halign = "left",
+                    valign = "baseline"
+                );
+
+                translate([case_x - case_w * 3, case_w + font_size_4 * 1.5])
+                rotate(a = [0, 180, 0]) 
+                text(
+                    text_5,
+                    size = font_size_4,
+                    font = font,
+                    halign = "left",
+                    valign = "baseline"
+                );
+            }
+        }
+
         translate([0, 0])
             Swatches();
         translate([inner_x - slot_l, 0])
@@ -294,8 +337,9 @@ module TopWallX()
         }
     }
     
+    // snap-in teeth
     color("orange")
-    translate([(case_x - case_t) / 2, case_w2 - 0.4, case_o / 2])
+    translate([case_x / 2 - case_t * 3/2, case_w2 - 0.4, case_o / 2])
     rotate([0, 90, 0])
         intersection()
         {
@@ -303,6 +347,19 @@ module TopWallX()
             translate([-teeth_d/2,0,0])
                 cube([teeth_d*2,teeth_d*2,case_t]);
         }
+
+    color("orange")
+    translate([case_x / 2 + case_t * 1/2, case_w2 - 0.4, case_o / 2])
+    rotate([0, 90, 0])
+        intersection()
+        {
+            cylinder(h = case_t, d = teeth_d+teeth_d_wiggle, $fn = 360);
+            translate([-teeth_d/2,0,0])
+                cube([teeth_d*2,teeth_d*2,case_t]);
+        }
+
+
+
 }
 
 
@@ -347,7 +404,11 @@ module BotWallX()
         difference()
         {
             cube([inner_x, case_w2, case_o]);
-            translate([((inner_x - case_t) / 2) - 0.2, 0, case_o / 2])
+            translate([(inner_x / 2 - case_t * 3/2) - 0.2, 0, case_o / 2])
+            rotate([0, 90, 0])
+                cylinder(h = case_t + 0.4, d = teeth_d, $fn = 360);
+
+            translate([(inner_x / 2 + case_t * 1/2) - 0.2, 0, case_o / 2])
             rotate([0, 90, 0])
                 cylinder(h = case_t + 0.4, d = teeth_d, $fn = 360);
         }
