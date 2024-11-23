@@ -1,5 +1,5 @@
 // upper text line
-textstring1 = "Bambu PETG Trans.";
+textstring1 = "Bambu PETG HF";
 
 // Set font size in mm
 textsize_upper = 5;
@@ -8,17 +8,13 @@ textsize_upper = 5;
 textstring2 = "0.4mm  245°C";
 
 // Right lower text line, e.g. for the color of the filament
-textstring3 = "Light Blue";
+textstring3 = "Blue";
 
 // Set font size in mm
 textsize_lower = 5;
 
 // Top text (on the top edge, to quickly find the material type).
-texttop = "P E T G";  //[-,P L A, ,P L A +, A B S, P E T G, N y l o n, P V B,
-                    //H I P S, P E E K, T P U, P O M, P V A, P P, A S A, P C,
-                    //U L T E M, R e s i n, P A, n G E N, H T, P H A,
-                    //A M 1 8 0 0,A M 3 3 0 0,N G E N _ F L E X,P U R,
-                    //F L 6 0 0 0]
+texttop = "P E T G";  // [-,P L A, ,P L A +,A B S,P E T G,N y l o n,P V B,H I P S,P E E K,T P U,P O M,P V A,P P,A S A,P C,U L T E M,R e s i n,P A,n G E N,H T,P H A,A M 1 8 0 0,A M 3 3 0 0,N G E N _ F L E X,P U R, F L 6 0 0 0]
 
 // Own top text: Use text here if you want to override the drop-down right
 // above. Note that you can increase readability by using all capital letters
