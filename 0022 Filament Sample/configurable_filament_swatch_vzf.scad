@@ -75,7 +75,7 @@ h=30;
 
 //Swatch Thickness, should be >=.18mm. 
 th=2.4;
- 
+
 //Swatch roundness radius
 round=5;
 
@@ -90,7 +90,7 @@ r_hole=2;
 
 //side indents to take out the swatch from the box. set to 0 to have no indents
 r_indent=3;
- 
+
 
 /* [Hidden] */
 //-------------------------------------------------------------------------------
@@ -328,17 +328,17 @@ module rounded_square_test_pattern_raised(x,y,z,r,text_type)
 
 module textlines(height)
 {
-    translate([ w-wall,h-wall-textsize_upper,height ])
-        linear_extrude(height=th,convexity = 10)
-            text(textstring1,size=textsize_upper,font=fontname,halign="right",valign="baseline");  
+    translate([ w-wall, h-wall-textsize_upper, height ])
+        linear_extrude(height=th, convexity = 10)
+            text(textstring1, size=textsize_upper, font=fontname, halign="right", valign="baseline");  
     
-    translate([ wall,h-wall-(textsize_upper+textsize_lower*linesep),height ])
-        linear_extrude(height=th,convexity = 10)
-                text(textstring2,size=textsize_lower,font=fontname,halign="left",valign="baseline");  
+    translate([ wall, h-wall-(textsize_upper+textsize_lower*linesep), height ])
+        linear_extrude(height=th, convexity = 10)
+                text(textstring2, size=textsize_lower, font=fontname, halign="left", valign="baseline");  
     
-    translate([ w-wall,h-wall-(textsize_upper+textsize_lower*linesep),height ])
-        linear_extrude(height=th,convexity = 10)
-                text(textstring3,size=textsize_lower,font=fontname,halign="right",valign="baseline");      
+    translate([ w-wall, h-wall-(textsize_upper+textsize_lower*linesep), height ])
+        linear_extrude(height=th, convexity = 10)
+                text(textstring3, size=textsize_lower, font=fontname, halign="right", valign="baseline");      
 }
 
 
@@ -383,6 +383,8 @@ function str_configurable_zero(number) =
 	: steps_text_format=="enforce leading and trailing zero 0.0"?
 		(round(number)==number? substr(str(abs(number+.01)), pos=0, len=len(str(abs(number+.01)))-1, substr=""):str(abs(number)))
 	: no_leading_zero(str(abs(number)));
+
+// Generate the actual Filament Sample Swatch!
 module swatch(text_type)
 {            
     //wall thickness around step area 
@@ -430,7 +432,7 @@ module swatch(text_type)
         else
         {//xxx     if(text_type!="embossed")
             translate([ wall/2,h-wall/2-fontarea_h,th-font_recessed ])
-                rounded_square(w-wall,fontarea_h,th,round-wall/2);
+                rounded_square(w-wall, fontarea_h, th, round-wall/2);
         }
                 
         if (tack_hole=="top" || tack_hole=="both")
@@ -487,7 +489,8 @@ module swatch(text_type)
 }
 
 
-Debug="false";
+// Debug="false";
+Debug="true";
 if (Debug!="true")
 {
     swatch(text_type);
