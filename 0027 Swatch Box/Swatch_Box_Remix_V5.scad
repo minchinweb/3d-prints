@@ -13,9 +13,11 @@ text_1 = "Filament";
 // Text to print on top cover (Line 2)
 text_2 = "Swatches";
 text_3 = "Wm Minchin";
-font_size=24 / 2.83465;  // convert to points
-font_size_3 = font_size / 2;
-font_size_4 = 8 / 2.83465;  // convert to points
+// "Serial" number
+text_6 = "Box #2";
+font_size= 24 / 2.83465;  // convert to points
+font_size_3 = 18 / 2.83465;
+font_size_4 = 12 / 2.83465;  // convert to points
 font="Aldo";
 
 // Number of boxes side by side
@@ -46,32 +48,23 @@ slot_h = 15;				// [10:30]
 /* [Swatch Dimensions]  */
 
 // Length (mm) of each swatch
-swatch_x = 79.6;
+swatch_x = 79.4 + 0.2;
 // Width (mm) of each swatch
-swatch_y = 2.6;
+swatch_y = 2.5 + 0.1;
 // Height (mm) of each swatch
-swatch_z = 31;
+swatch_z = 30 + 1;
 
-/*
-// For Dia frames
-// Length (mm) of slot separators
-slot_l = 0;					// [0:10]
-// Length (mm) of each swatch
-swatch_x = 51;
-// Width (mm) of each swatch
-swatch_y = 1.5;
-// Height (mm) of each swatch
-swatch_z = 51;
-text1 = "";
-text2 = "";
-*/
 
 /* [Hidden] */
 
-wiggle_x=.4;
-slot_x = swatch_x*side_by_side_boxes + wiggle_x + (side_by_side_boxes-1)*(case_w+wiggle_x);   	// length of slots
+wiggle_x = 0.4;
+slot_x = (
+    swatch_x * side_by_side_boxes
+    + wiggle_x
+    + (side_by_side_boxes - 1) * (case_w + wiggle_x)
+);   	// length of slots
 slot_y = swatch_y + 0.2;   	// width of slots
-slot_z = swatch_z + 4;          // height of slots, some extra space to make them fit
+slot_z = swatch_z + 4;      // height of slots, some extra space to make them fit
 
 inner_x = slot_x;
 inner_y = (swatches * (slot_y + slot_w)) + slot_w;
@@ -93,18 +86,18 @@ text_5 = str(
     " mm"
 );
 
-//Pegboard pin configuration
-wiggle=.4;
-dist_horiz=45;
-dist_vert=50;
-d_pin=5;
-d_hole=11;
-th_pegboard=1.5;
-th_holder=3;
-cutoff=.1; // 10%
+// Pegboard pin configuration
+wiggle = 0.4;
+dist_horiz = 45;
+dist_vert = 50;
+d_pin = 5;
+d_hole = 11;
+th_pegboard = 1.5;
+th_holder = 3;
+cutoff = 0.1; // 10%
 
 
-divider_x=case_w+swatch_x + wiggle_x;
+divider_x = case_w + swatch_x + wiggle_x;
 *for(j=[0:1:swatches-1])
 for(i=[0:1:side_by_side_boxes-1])
     translate([divider_x*i, j*(slot_y+slot_w), 0])
@@ -115,20 +108,20 @@ for(i=[0:1:side_by_side_boxes-1])
                 
 module pin()
 {
-    cutoffcube=2*d_hole;
+    cutoffcube= 2 * d_hole;
     
     difference()
     {
-        translate([0,0,d_pin*(.5-cutoff)])
-            rotate([90,0,0])
+        translate([0, 0, d_pin * (0.5 - cutoff)])
+            rotate([90, 0, 0])
             {
-                cylinder(d=d_pin,h=th_pegboard+th_holder);
-                translate([0,0,th_pegboard])
-                    cylinder(d=d_hole,h=th_holder);
+                cylinder(d=d_pin, h=th_pegboard + th_holder);
+                translate([0, 0, th_pegboard])
+                    cylinder(d=d_hole, h=th_holder);
             }
             
-        translate([-cutoffcube/2,-cutoffcube/2,-cutoffcube])
-            cube([cutoffcube,cutoffcube,cutoffcube]);
+        translate([-cutoffcube/2, -cutoffcube/2, -cutoffcube])
+            cube([cutoffcube, cutoffcube, cutoffcube]);
     }
 }
 
@@ -139,9 +132,8 @@ if (part != "top" && Pegboard_holder == "yes")
 {
     for ( i = [-.5 : 1 : .5] )
     //    translate([i*dist_horiz,0,j*dist_vert])
-        translate([i*dist_horiz+case_x/2,0,0])
+        translate([i*dist_horiz+case_x/2, 0, 0])
             pin();
-
 }
 
 
@@ -195,7 +187,7 @@ module CaseTop()
             translate([0, 0, slot_z - slot_h + case_h - 0.5 + 0.01])
             linear_extrude(height = 0.5)
             {
-                translate([case_x / 2, (case_y / 2) + font_size*.8])
+                translate([case_x / 2, (case_y / 2) + font_size * 0.8])
                 text(
                     text = text_1,
                     size = font_size,
@@ -204,7 +196,7 @@ module CaseTop()
                     valign = "center"
                 );
                 
-                translate([case_x / 2, (case_y / 2) - font_size*.8])
+                translate([case_x / 2, (case_y / 2) - font_size * 0.8])
                 text(
                     text = text_2,
                     size = font_size,
@@ -212,13 +204,24 @@ module CaseTop()
                     halign = "center",
                     valign = "center"
                 );
-                translate([case_x / 2, (case_y / 2) - 3*font_size*.8])
+
+                translate([case_x / 2, (case_y / 2) - 3 * font_size * 0.8])
                 text(
                     text = text_3,
                     size = font_size_3,
                     font = font,
                     halign = "center",
                     valign = "center"
+                );
+
+                translate([case_x - case_w, case_w])
+                // rotate(a = [0, 180, 0]) 
+                text(
+                    text_6,
+                    size = font_size_4,
+                    font = font,
+                    halign = "right",
+                    valign = "baseline"
                 );
             }
         }
@@ -240,7 +243,7 @@ module CaseBot()
 
     if(side_by_side_boxes > 1)
     {
-        divider_x=case_w + swatch_x + wiggle_x;
+        divider_x = case_w + swatch_x + wiggle_x;
         for(i=[1:1:side_by_side_boxes-1])
             translate([divider_x*i, 0])
             {
@@ -271,7 +274,7 @@ module CaseBot()
             linear_extrude(height = 0.5)
             {
                 translate([case_x - case_w * 3, case_w])
-                rotate(a = [0, 180, 0]) 
+                rotate(a = [0, 180, 0])
                 text(
                     text_4,
                     size = font_size_4,
@@ -287,6 +290,16 @@ module CaseBot()
                     size = font_size_4,
                     font = font,
                     halign = "left",
+                    valign = "baseline"
+                );
+
+                translate([case_w, case_w])
+                rotate(a = [0, 180, 0]) 
+                text(
+                    text_6,
+                    size = font_size_4,
+                    font = font,
+                    halign = "right",
                     valign = "baseline"
                 );
             }
@@ -307,7 +320,7 @@ module CaseBot()
 // Top Box //
 /* ------- */
 
-bigger_lip_to_make_it_fit=.4;
+bigger_lip_to_make_it_fit = 0.4;
 
 module TopWallX()
 {
@@ -366,7 +379,7 @@ module TopWallX()
 module TopWallY()
 {
     color("orange")
-    translate([0, 0, case_o+bigger_lip_to_make_it_fit])
+    translate([0, 0, case_o + bigger_lip_to_make_it_fit])
     resize([0, 0, slot_z - slot_h - case_o-bigger_lip_to_make_it_fit + case_h])
         WallY();
     
@@ -400,6 +413,7 @@ module BotWallX()
         resize([case_w2, case_w2, case_o])
             Corner();
         
+        // remove dedant for snap-in teeth
         translate([case_w2, 0])
         difference()
         {
@@ -462,6 +476,7 @@ module WallY()
     translate([0, case_w])
         cube([case_w, inner_y, 1]);
 }
+
 module Corner()
 {
     translate([case_w, case_w])
