@@ -1,6 +1,9 @@
 [submodule "libs/Chamfers-for-OpenSCAD"]
 	path = libs/Chamfers-for-OpenSCAD
 	url = https://github.com/SebiTimeWaster/Chamfers-for-OpenSCAD.git
+[submodule "libs/gridfinity_extended_openscad"]
+	path = libs/gridfinity_extended_openscad
+	url = https://github.com/ostat/gridfinity_extended_openscad.git
 [submodule "libs/gflabel"]
 	path = libs/gflabel
 	url = https://github.com/ndevenish/gflabel.git
