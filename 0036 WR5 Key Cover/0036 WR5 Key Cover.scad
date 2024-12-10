@@ -1,6 +1,7 @@
 // Key cover or key "sock" for a WR5 / KW1 square block key
 //
 // Commonly used for American house keys
+// particularly Weiser and Kwickset
 // Sample blank: https://discountdoorhardware.ca/product/weiser-wr5-keyway-5-pin-key-blank-brass/
 //
 // All dimensions in mm
@@ -21,7 +22,7 @@ key_box_width = 21.77;
 key_box_height = 17.00;
 // ??
 key_top_base_width = 13.00;
-// measureed along the "top edge" of the key, how wide are the shoulders that stick up?
+// measured along the "top edge" of the key, how wide are the shoulders that stick up?
 key_top_shoulder_width = 12.7;
 // at the top of the "key hole bump", how wide is the top edge? The bottom of the keyhole is assumed to be this wide as well.
 key_top_top_width = 10.5;
@@ -175,7 +176,7 @@ module key_labels(extra_depth = 0) {
     translate(v = [
         key_box_width / 2,
         (key_box_height - font_size) / 2,
-        key_thickness - extra_depth
+        key_thickness + clearance_depth - extra_depth
     ])
     linear_extrude(height = sock_thickness + extra_depth * 2)
     text(
@@ -189,7 +190,7 @@ module key_labels(extra_depth = 0) {
     translate(v = [
         key_box_width / 2,
         (key_box_height - font_size) / 2,
-        0 + extra_depth
+        0 - extra_depth
     ])
     rotate([0, 180, 0])
     linear_extrude(height = sock_thickness + extra_depth * 2)
@@ -212,37 +213,6 @@ module key_sock() {
         my_keyhole();
 
         key_labels(extra_depth = 0.5);
-
-        // translate(v = [
-        //     key_box_width / 2,
-        //     (key_box_height - font_size) / 2,
-        //     key_thickness - 0.5
-        // ])
-        // linear_extrude(height = sock_thickness + 2)
-        // text(
-        //     key_label,
-        //     size = font_size,
-        //     font = font,
-        //     halign = "center",
-        //     valign = "baseline"
-        // );
-
-        // translate(v = [
-        //     key_box_width / 2,
-        //     (key_box_height - font_size) / 2,
-        //     key_thickness - 0.5
-        // ])
-        // rotate([0, 180, 0])
-        // linear_extrude(height = sock_thickness + 2)
-        // text(
-        //     key_label,
-        //     size = font_size,
-        //     font = font,
-        //     halign = "center",
-        //     valign = "baseline"
-        // );
-
-
     }
 }
 
