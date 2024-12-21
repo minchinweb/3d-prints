@@ -1,4 +1,5 @@
 *.url
+*.lnk
 *.pdf
 *.webp
 *.jpg
@@ -19,7 +20,11 @@
 *.scene
 *.SLDPRT
 *.step
-*.mg  # Meshroom
+# Meshroom
+*.mg
+*.dat
+*.rcproj
+*.db
 
 Thumbs.db
 .DS_Store
