@@ -16,7 +16,7 @@ font_size = 5;
 
 // thickness "front to back", laying flat on the table; Weiser default is 2.00mm
 key_thickness = 2.00;  // 0.01
-// laying flat, the "left to right" of the main body; Weiser default is 21.77mm
+// laying flat, the "left to right" of the main body; Weiser default is 21.77mm, Minute Key default is 22.15mm
 key_box_width = 21.77;  // 0.01
 // laying flat, the "up to down" of the main body; Weiser default is 17.00mm
 key_box_height = 17.00;  // 0.01
@@ -33,14 +33,27 @@ key_top_thickness = 2.21;  // 0.01
 // the "up to down" of the top keyhole; Weiser default is 4.92mm
 key_hole_height = 4.92;  // 0.01
 
-// how thick do you want the cover? Tip: set this to a multiple of your print line width.
-sock_thickness = 0.42 * 2;  // 0.01
+// how thick do you want the cover? Tip: set this to a multiple of your print line width.; personal default is 0.84mm
+sock_thickness = 0.84;  // 0.01
 
 // additional clearance (c.f. tolerance) to width of the key; default is 0.70mm
 clearance_width = 0.70;  // 0.01
 // additional clearance (c.f. tolerance) to thickness of the key; default is 0.30mm
 clearance_depth = 0.30;  // 0.01
 //text_delta_y = 0;
+
+
+// Minute Key measurements
+// =======================
+// key_thickness = 1.98;
+// key_box_width = 22.15;  // * note change
+// key_box_height = 17.04;
+// key_top_shoulder_width = 12.7;
+// key_top_top_width = 10.5;
+// key_top_extra_height = 4.3;  // * note change
+// key_top_thickness = 2.25;
+// key_hole_height = 4.96;
+
 
 // how far outside the "box" to show removals (in OpenSCAD rendering)
 overcut_distance = 5;  // 0.1
