@@ -14,36 +14,36 @@ font_size = 5;
 
 /// Generate key sock!
 
-// thickness "front to back", laying flat on the table
-key_thickness = 2.00;
-// laying flat, the "left to right" of the main body
-key_box_width = 21.77;
-// laying flat, the "up to down" of the main body
-key_box_height = 17.00;
-// ??
-key_top_base_width = 13.00;
-// measured along the "top edge" of the key, how wide are the shoulders that stick up?
-key_top_shoulder_width = 12.7;
-// at the top of the "key hole bump", how wide is the top edge? The bottom of the keyhole is assumed to be this wide as well.
-key_top_top_width = 10.5;
-// how much does the "key hole bump" sick "up" above the main body of the key?
-key_top_extra_height = 4.41;
-// on the "key hole bump", how tall is the band between the top edge and the keyhole?
-key_top_thickness = 2.21;
-// the "up to down" of the top keyhole
-key_hole_height = 4.92;
+// thickness "front to back", laying flat on the table; Weiser default is 2.00mm
+key_thickness = 2.00;  // 0.01
+// laying flat, the "left to right" of the main body; Weiser default is 21.77mm
+key_box_width = 21.77;  // 0.01
+// laying flat, the "up to down" of the main body; Weiser default is 17.00mm
+key_box_height = 17.00;  // 0.01
+// ??; Weiser default is 13.00mm
+key_top_base_width = 13.00;  // 0.01
+// measured along the "top edge" of the key, how wide are the shoulders that stick up?; Weiser default is 12.70mm
+key_top_shoulder_width = 12.7;  // 0.01
+// at the top of the "key hole bump", how wide is the top edge? The bottom of the keyhole is assumed to be this wide as well.; Weiser default is 10.50mm
+key_top_top_width = 10.5;  // 0.01
+// how much does the "key hole bump" sick "up" above the main body of the key?; Weiser default is 4.41mm
+key_top_extra_height = 4.41;  // 0.01
+// on the "key hole bump", how tall is the band between the top edge and the keyhole?; Weiser default is 2.21mm
+key_top_thickness = 2.21;  // 0.01
+// the "up to down" of the top keyhole; Weiser default is 4.92mm
+key_hole_height = 4.92;  // 0.01
 
 // how thick do you want the cover? Tip: set this to a multiple of your print line width.
-sock_thickness = 0.42 * 2;
+sock_thickness = 0.42 * 2;  // 0.01
 
-// additional clearance (c.f. tolerance) to width of the key
-clearance_width = 0.70;
-// additional clearance (c.f. tolerance) to thickness of the key
-clearance_depth = 0.30;
+// additional clearance (c.f. tolerance) to width of the key; default is 0.70mm
+clearance_width = 0.70;  // 0.01
+// additional clearance (c.f. tolerance) to thickness of the key; default is 0.30mm
+clearance_depth = 0.30;  // 0.01
 //text_delta_y = 0;
 
-// how far outside the "box" to show removals
-overcut_distance = 5;
+// how far outside the "box" to show removals (in OpenSCAD rendering)
+overcut_distance = 5;  // 0.1
 
 key_top_shoulder = (key_box_width - key_top_shoulder_width) / 2;
 full_thickness = key_thickness + sock_thickness * 2;
