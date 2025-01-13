@@ -7,3 +7,6 @@
 [submodule "libs/gflabel"]
 	path = libs/gflabel
 	url = https://github.com/ndevenish/gflabel.git
+[submodule "libs/KeyV2"]
+	path = libs/KeyV2
+	url = https://github.com/rsheldiii/KeyV2.git
