@@ -23,7 +23,7 @@ front_text_1 = "Hipster PDA";
 front_text_1_font_size = 15;
 front_text_2 = "Wm Minchin";
 front_text_2_font_size = 6;
-back_text_3 = "0092A / 2024-01-18";
+back_text_3 = "0092B / 2024-01-18";
 back_text_3_font_size = 6;
 back_text_4 = "3x5 cards + F301 pen";
 back_text_4_font_size = 6;
@@ -33,6 +33,7 @@ back_text_5_font_size = 6;
 back_font_size = 8;
 text_deboss_depth = 0.5;
 wall_thickness = 2.0; // 0.01
+// you probably want this less that "slot length"
 width_play = 0.5;
 depth_play = 0;
 height_play = 1;
@@ -40,7 +41,7 @@ pen_play = 0.6;
 
 // based on Swatch_Box_Remix_V5.scad (my print 0027)
 // Output Type
-part = "both";  // [top, bottom, both, plate, all]
+part = "all";  // [top, bottom, both, plate, all]
 
 /* [Case Dimensions] */
 
@@ -59,11 +60,11 @@ teeth_d_wiggle=0.3;
 // Length (mm) of slot separators, i.e. how far do they stick into the box
 slot_length = 0.8;					// [0:10]
 // Width (mm) of slot separators
-slot_width = 0.85;					// [1:3]
+slot_width = 0.8;					// [1:3]
 // Height (mm) of slot separators; controls bottom piece height
 slot_height = 96;				// [10:30]
 card_y = 0.6;
-card_y_play = 0.1;
+card_y_play = 0.0666666;
 
 /* [Swatch Dimensions]  */
 
@@ -76,13 +77,14 @@ swatch_z = max(card_length, pen_length) + height_play;
 
 swatch_x_2 = pen_diamter + pen_play + pen_clip_extra;
 
-echo("swatch_x_2", swatch_x_2);
+echo("swatch_x_2 =", swatch_x_2);
+echo("match pen at", pen_diamter, pen_play, pen_clip_extra, "=", pen_diamter + pen_play + pen_clip_extra);
 
 
 /* [Hidden] */
 
 side_by_side_boxes = 2;
-swatches = 5;
+swatches = 6;
 
 wiggle_x = 0.4;
 slot_x = (
@@ -95,7 +97,8 @@ slot_z = swatch_z + 4;      // height of slots, some extra space to make them fi
 
 inner_x = slot_x;
 inner_y = (swatches * (slot_y + slot_width)) + slot_width;
-echo("inner_y", swatches, slot_y, slot_width, inner_y);
+echo("inner_y", swatches, slot_y, slot_width, "=", inner_y);
+echo("match pen diameter at", pen_diamter, pen_play, "=", pen_diamter + pen_play);
 
 case_width2 = case_width / 2;
 case_x = inner_x + (case_width * 2);
@@ -517,5 +520,5 @@ module Corner()
 module Plate() {
     shift_plate_x = (part == "plate" ? 0 : case_x + 5);
     translate([shift_plate_x, 0, 0])
-    cube([card_width, card_length, card_y]);
+    cube([card_width + 2 * slot_length, card_length, card_y]);
 }
