@@ -1,0 +1,17 @@
+Project: 0089A Lilac Bookmark - 20241219.hfp
+Print at 100% infill with a layer height of 0.04mm with a base layer of 0.12mm
+
+ The Model is 50x150mm in size
+ You may print at higher layer heights below the Min Depth of 0.88mm
+ The Max Depth is 2.2mm and the Actual Depth is 1.9mm
+
+Filaments Used:
+	PLA BambuLabs Basic X Jade White 5.0 Transmission Distance: 5
+	PLA BambuLab Matte Lilac Purple Transmission Distance: 5
+	PLA BambuLab Basic X Gold Transmission Distance: 10
+This print uses 3 unique filaments
+
+Swap Instructions:
+	Start with Jade White 5.0
+	At layer #21 (0.92mm) swap to Lilac Purple
+	At layer #36 (1.52mm) swap to Gold for the rest.
