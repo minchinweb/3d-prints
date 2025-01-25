@@ -1,0 +1,29 @@
+Edmonton
+
+Mostly centered, but includes the east to get my folk's place
+
+http://jthatch.com/Terrain2STL/
+
+## Location
+
+53.85
+-113.77
+
+
+## Model Details
+
+Box Size: 2520
+Box Scaling Factor: 1
+Box Rotation: 0
+Vertical Scaling: 4
+
+## Water and Base Settings
+
+Water Drop (mm): 1
+Base Height (mm): 10
+
+
+## Photon
+
+This drops into the Photon at 8.12% scaled. Max height is 8mm, base of 65x68mm.
+

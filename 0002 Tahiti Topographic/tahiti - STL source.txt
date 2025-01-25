@@ -1,0 +1,27 @@
+Tahiti -- this is of the main island
+
+http://jthatch.com/Terrain2STL/
+
+## Location
+
+-17.3501
+-149.7001
+
+
+## Model Details
+
+Box Size: 2520
+Box Scaling Factor: 1
+Box Rotation: 0
+Vertical Scaling: 4
+
+## Water and Base Settings
+
+Water Drop (mm): 1
+Base Height (mm): 4
+
+
+## Photon
+
+This drops into the Photon at 8.12% scaled. Max height is 8mm, base of 65x68mm.
+
