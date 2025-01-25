@@ -1,0 +1,16 @@
+This is the test that came with the Photon.
+
+## Settings:
+
+Layer Thinkness (mm): 0.05
+Normal Exposure TIme (s): 8
+Off Time (s): 1
+Bottom Layer Exposure Time (s): 50
+Bottom Layers: 8
+
+Z lift distance (mm): 5
+Z life speed (mm/s): 5
+Z retract speed (mm/s): 5
+Anti-alias: 1
+
+(Bottom layer Z height (mm): 0.01  (First Layer only))
