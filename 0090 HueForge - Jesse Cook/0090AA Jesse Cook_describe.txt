@@ -1,0 +1,15 @@
+Project: 0090AA Jesse Cook.hfp
+Print at 100% infill with a layer height of 0.04mm with a base layer of 0.12mm
+
+ The Model is 150x99.02mm in size
+ You may print at higher layer heights below the Min Depth of 0.84mm
+ The Max Depth is 2.3mm and the Actual Depth is 1.4mm
+
+Filaments Used:
+	PLA m3D Black Transmission Distance: 0.5
+	PLA BambuLab Basic Jade White Transmission Distance: 8.8
+This print uses 2 unique filaments
+
+Swap Instructions:
+	Start with Black
+	At layer #21 (0.92mm) swap to Jade White for the rest.
