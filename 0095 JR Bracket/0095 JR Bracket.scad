@@ -3,6 +3,17 @@
 // Time spent
 // Jan 25/25 -- 3/4 hr
 // Jan 25/25 -- 1 hr
+//
+// Print time
+// x2 PLA Design A -- 0h55
+// x2 PLA Design B -- ~1hr 
+// x2 PETG -- 1h
+// x30 PETG -- 11h58
+
+// Asking Price:
+// 1.75hr x $50/hr = $87.50
+// 15     x $2/hr  = $30
+//           Total = $117.50  (or $3.92/ea)
 
 
 // Version A comments
