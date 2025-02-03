@@ -1,5 +1,23 @@
 // Gridfinity Stackable baseplate
 
+// A -- 2025-02-02 -- Observations
+//
+// - "top" is hanging between layers at 5.80 and 7.2 mm
+// - nut hole is too narrow (at 2.25mm)
+// - screw hole is long enough for M3x30 bolts
+//
+// B -- 2025-02-03 -- Changes
+//
+// - project the top plate from 5.6mm to 7.2mm in height (so the bottom get
+//   goes all the way to the top plate)
+// - expand nut trap to 2.45mm thick (my M3 bolts measure at 2.32mm thick)
+
+// Possible future improvements
+// - option for baseplate corner magnets. This increases the baseplate height,
+//   so the projection intermediate would need to be adjusted
+// - space on the inside to feed screws, so the baseplates can be jointed
+//   together
+
 include <../libs/gridfinity_extended_openscad/modules/gridfinity_constants.scad>
 use <../libs/gridfinity_extended_openscad/modules/module_gridfinity_cup.scad>
 use <../libs/gridfinity_extended_openscad/modules/module_gridfinity.scad>
@@ -19,10 +37,13 @@ screw_hole_depth = 20;
 nut_split_fit_width = 5.6;
 // a M3 nut is nominally 6.35mm across corners
 nut_split_fit_width_corners = 6.4;
-// a M3 nut is nominally 2.15mm thick
-nut_split_fit_thickness = 2.25;
+// a M3 nut is nominally 2.15mm thick, mine are 2.32mm
+nut_split_fit_thickness = 2.45;
 
-nut_set_inset = 5.2;
+nut_set_inset = 5.4;
+
+// adding magnets will increase the baseplate height...need to adjust for this
+baseplate_enable_magnets = false; //[true, false]
 
 
 /* [WM Adjusted Settings] */
@@ -31,6 +52,8 @@ height_gh = 1;
 lip_style = "none";  // [ normal, reduced, minimum, none:not stackable ]
 // Enable magnets
 enable_magnets = false;
+// Enable magnets in the baseplate corner
+Enable_Magnets = baseplate_enable_magnets;
 // Enable screws
 enable_screws = false;
 //size of magnet, diameter and height. Zack's original used 6.5 and 2.4
@@ -42,7 +65,11 @@ text_1 = true;
 // Add free-form text line to bin bottom (printing date, serial, etc)
 text_2 = true;
 // Actual text to add
-text_2_text = "0099A";
+text_2_text = "0099B  M3       hardware";
+// Font Size of text, in mm (0 will auto size)
+text_size = 6; // 0.1
+// Depth of text, in mm
+text_depth = 0.3; // 0.01
 label_style = "disabled"; // [disabled: no label, normal:normal, gflabel:gflabel basic label, pred:pred - labels by pred, cullenect:Cullenect click labels V2,  cullenect_legacy:Cullenect click labels v1]
 
 
@@ -224,10 +251,7 @@ extension_tabs_enabled = true;
 extension_tab_size= [10,0,0,0];
 
 /* [Cup - Bottom Text] */
-// Font Size of text, in mm (0 will auto size)
-text_size = 0; // 0.1
-// Depth of text, in mm
-text_depth = 0.3; // 0.01
+
 // Font to use
 text_font = "Aldo";  // [Aldo, B612, "Open Sans", Ubuntu]
 
@@ -266,8 +290,7 @@ average_plate_sizes = false;
 build_plate_size = [200,250];
 
 /* [Baseplate - Options] */
-// Enable magnets in the bin corner
-Enable_Magnets = enable_magnets;
+
 //size of magnet, diameter and height. Zacks original used 6.5 and 2.4 
 Magnet_Size = magnet_size;  // .1
 //raises the magnet, and creates a floor (for gluing)
@@ -477,6 +500,49 @@ module combined_base() {
         baseTextDepth = text_depth
     )
     );
+
+    // doubled baseplate, so it's not "hanging" midair
+    color("purple")
+    translate(v = [0, 0, 5.6])
+    linear_extrude(height = 7.2 - 5.6) 
+    projection(cut = true)
+    gridfinity_baseplate(
+        num_x = width[0],
+        num_y = depth[0],
+        outer_num_x = width[0],
+        outer_num_y = depth[0],
+        outer_height = outer_Height,
+        position_fill_grid_x = "near",
+        position_fill_grid_y = "near",
+        position_grid_in_outer_x = "center",
+        position_grid_in_outer_y = "center",
+        plate_corner_radius = plate_corner_radius,
+        magnetSize = Enable_Magnets ? Magnet_Size : [0,0],
+        magnetZOffset = Magnet_Z_Offset,
+        magnetTopCover = Magnet_Top_Cover,
+        reducedWallHeight = Reduced_Wall_Height, 
+        reduceWallTaper = Reduced_Wall_Taper, 
+        cornerScrewEnabled  = Corner_Screw_Enabled,
+        centerScrewEnabled = Center_Screw_Enabled,
+        weightedEnable = Enable_Weight,
+        oversizeMethod = oversize_method,
+        plateOptions = Base_Plate_Options,
+        customGridEnabled = Custom_Grid_Enabled,
+        gridPositions = [xpos1, xpos2, xpos3, xpos4, xpos5, xpos6, xpos7],
+        connectorPosition = Connector_Position,
+        connectorClipEnabled  = Connector_Clip_Enabled,
+        connectorClipSize = Connector_Clip_Size,
+        connectorClipTolerance = Connector_Clip_Tolerance,
+        connectorButterflyEnabled  = Connector_Butterfly_Enabled,
+        connectorButterflySize = Connector_Butterfly_Size,
+        connectorButterflyRadius = Connector_Butterfly_Radius,
+        connectorButterflyTolerance = Connector_Butterfly_Tolerance,
+        connectorFilamentEnabled = Connector_Filament_Enabled,
+        connectorFilamentDiameter = Connector_Filament_Diameter,
+        connectorFilamentLength = Connector_Filament_Length
+    );
+
+
     translate(v = [0, 0, 7])
     gridfinity_baseplate(
         num_x = width[0],
