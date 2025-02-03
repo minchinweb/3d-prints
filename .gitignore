@@ -20,6 +20,7 @@
 *.scene
 *.SLDPRT
 *.step
+*.f3d
 # Meshroom
 *.mg
 *.dat
