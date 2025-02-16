@@ -17,13 +17,12 @@
 // - move exterior hole up (to allow for clean plate stacking)
 // - swap to M2.5 hardware
 // - add socket head "extra pocket"
+//
+// D -- 2025-02-16 -- Changes
+//
+// - interior block for screw to go into
+// - corner holes for magnets
 
-
-// Possible future improvements
-// - option for baseplate corner magnets. This increases the baseplate height,
-//   so the projection intermediate would need to be adjusted
-// - space on the inside to feed screws, so the baseplates can be jointed
-//   together
 
 include <../libs/gridfinity_extended_openscad/modules/gridfinity_constants.scad>
 use <../libs/gridfinity_extended_openscad/modules/module_gridfinity_cup.scad>
@@ -35,10 +34,10 @@ use <../libs/gridfinity_extended_openscad/modules/module_gridfinity_baseplate_co
 
 /* [WM Basic Settings] */
 
-width_gh = 4;
-depth_gh = 3;
+width_gf = 4;
+depth_gf = 3;
 
-// for M3 hardware, 3.3mm
+// for M3 hardware, 3.3mm. Set to the nominal size of the hardware so that the threads will cut into the printed plastic, which we want.
 screw_hole_diameter = 2.5;
 // to go across the bin, set to 39mm
 screw_hole_depth = 16;
@@ -49,25 +48,26 @@ nut_split_fit_width_corners = 5.55;
 // a M3 nut is nominally 2.15mm thick, mine are 2.32mm; include clearance here (so 2.45mm?)
 nut_split_fit_thickness = 2.05;
 screw_socket_head_diameter = 4.5;
-screw_socket_head_depth = 16;
+screw_socket_head_depth = 29.95;
 
 // how far above the bottom the center of the screw hole is
 screw_hole_height = 5.975;
 
 // to adjust how much the nut is inside, from the outside walls of the baseplate (for M3, use 5.4mm?)
 nut_set_inset = 5.01;
-screw_socket_inset = 6.5;
 
-// adding magnets will increase the baseplate height...need to adjust for this
-baseplate_enable_magnets = false; //[true, false]
+// this is the actual one we use to turn on and off magnet
+magnets = true;  // [true, false]
 
 
 /* [WM Adjusted Settings] */
 height_gh = 1;
 // Remove some or all of lip
 lip_style = "none";  // [ normal, reduced, minimum, none:not stackable ]
-// Enable magnets
-enable_magnets = false;
+// Enable magnets; set as "false"
+enable_magnets = false; // [true, false]
+// adding magnets will increase the baseplate height...need to adjust for this; set as "false" for now
+baseplate_enable_magnets = false; // [true, false]
 // Enable magnets in the baseplate corner
 Enable_Magnets = baseplate_enable_magnets;
 // Enable screws
@@ -81,7 +81,7 @@ text_1 = true;
 // Add free-form text line to bin bottom (printing date, serial, etc)
 text_2 = true;
 // Actual text to add
-text_2_text = "0099C  M2.5      hardware";
+text_2_text = "0099D  M2.5      hardware";
 // Font Size of text, in mm (0 will auto size)
 text_size = 5.5; // 0.1
 // Depth of text, in mm
@@ -92,9 +92,9 @@ label_style = "disabled"; // [disabled: no label, normal:normal, gflabel:gflabel
 /*<!!start gridfinity_basic_cup!!>*/
 /* [General Cup] */
 // X dimension. grid units (multiples of 42mm) or mm.
-width = [width_gh, 0]; // 0.1
+width = [width_gf, 0]; // 0.1
 // Y dimension. grid units (multiples of 42mm) or mm.
-depth = [depth_gh, 0]; // 0.1
+depth = [depth_gf, 0]; // 0.1
 // Z dimension excluding. grid units (multiples of 7mm) or mm.
 height = [height_gh, 0]; // 0.1
 // Fill in solid block (overrides all following options)
@@ -392,6 +392,23 @@ $fa = fa;
 $fs = fs; 
 $fn = fn;  
 
+// My Math...
+gf_xy_base = 42;
+gf_z_base = 7;
+additional_screw_trap_width = max(
+    screw_socket_head_diameter,
+    nut_split_fit_width_corners + 2 * nut_split_fit_thickness
+);
+screw_socket_inset = nut_set_inset + 2 * nut_split_fit_thickness;
+base_top_z = 5.6;
+crown_bottom_rim_z = 7.2;
+spacer_height = crown_bottom_rim_z - base_top_z;
+magnet_center_edge_offset = 8.00;
+magnet_center_interior_offset = 4.8;
+magnet_with_rim_diameter = magnet_size[0] + 2 * magnet_size[1];
+magnet_base_offset = -1 * gf_xy_base / 2 + (magnet_center_edge_offset - magnet_center_interior_offset);
+
+
 module combined_base() {
     SetGridfinityEnvironment(
         width = width,
@@ -407,6 +424,7 @@ module combined_base() {
         force_render = force_render
     )
 
+    // "cup" provides the bottom profile
     gridfinity_cup(
     width=width, depth=depth, height=height,
     filled_in=filled_in,
@@ -517,10 +535,11 @@ module combined_base() {
     )
     );
 
-    // doubled baseplate, so it's not "hanging" midair
+    // spacer between the top and bottom to remove overhangs. A "shadow" of the
+    // top baseplate
     color("purple")
-    translate(v = [0, 0, 5.6])
-    linear_extrude(height = 7.2 - 5.6) 
+    translate(v = [0, 0, base_top_z])
+    linear_extrude(height = spacer_height) 
     projection(cut = true)
     gridfinity_baseplate(
         num_x = width[0],
@@ -558,8 +577,68 @@ module combined_base() {
         connectorFilamentLength = Connector_Filament_Length
     );
 
+    // oversized "spacer" to be cut down for nut traps and screw holes
+    color("teal")
+    translate(v = [-1 * gf_xy_base / 2, 0, base_top_z])
+    translate(v = [-1 * additional_screw_trap_width / 2, 0, 0]) 
+    for (i=[1:1:width[0]]) {
+        translate(v = [i * gf_xy_base, 0.01, 0])
+        cube(size = [additional_screw_trap_width, screw_socket_inset, spacer_height]);
 
-    translate(v = [0, 0, 7])
+        translate(v = [i * gf_xy_base, depth[0] * gf_xy_base - screw_socket_inset - 0.01, 0])
+        cube(size = [additional_screw_trap_width, screw_socket_inset, spacer_height]);
+    }
+
+    color("teal")
+    translate(v = [0, -1 * gf_xy_base / 2, base_top_z])
+    translate(v = [0, -1 * additional_screw_trap_width/2, 0]) 
+    for (i=[1:1:depth[0]]) {
+        translate(v = [0.01, i * gf_xy_base, 0])
+        cube(size = [screw_socket_inset, additional_screw_trap_width, spacer_height]);
+
+        translate(v = [width[0] * gf_xy_base - screw_socket_inset - 0.01, i * gf_xy_base, 0])
+        cube(size = [screw_socket_inset, additional_screw_trap_width, spacer_height]);
+    }
+
+    // corner "spacer" to be cut down for magnet holes
+    if (magnets == true) {
+        translate(v = [-1 * gf_xy_base / 2, -1 * gf_xy_base / 2, base_top_z])
+        for (i = [1 : 1 : width[0]]) {
+            for (j = [ 1 : 1 : depth[0]]) {
+                // center of cup
+                translate(v = [i * gf_xy_base, j * gf_xy_base, 0])
+                for (k = [0 : 90 : 270]) {
+                    rotate(k)
+                    translate(v = [magnet_base_offset - 0.5, magnet_base_offset - 0.5, 0]) {
+                    cube(size=[
+                        magnet_center_interior_offset + magnet_with_rim_diameter / 2,
+                        magnet_center_interior_offset + 0.5,
+                        spacer_height
+                    ]);
+
+                    cube(size=[
+                        magnet_center_interior_offset + 0.5,
+                        magnet_center_interior_offset + magnet_with_rim_diameter / 2,
+                        spacer_height
+                    ]);
+
+                    translate(v = [
+                        magnet_center_interior_offset,
+                        magnet_center_interior_offset,
+                        0
+                    ])
+                    cylinder(
+                        d = magnet_with_rim_diameter,
+                        h = spacer_height
+                    );
+                    }
+                }
+            }
+        }
+    }
+
+    // add a "real" baseplate to the top to have something for bins to sit in
+    translate(v = [0, 0, gf_z_base])
     gridfinity_baseplate(
         num_x = width[0],
         num_y = depth[0],
@@ -613,17 +692,17 @@ module slip_nut_profile(
 difference() {
     combined_base();
 
-    translate(v = [-42/2, -0.01, screw_hole_height]) 
+    translate(v = [-1 * gf_xy_base / 2, -0.01, screw_hole_height])
     for (i=[1:1:width[0]]) {
         // main screw hole
-        translate(v = [i * 42, 0, 0])
+        translate(v = [i * gf_xy_base, 0, 0])
         rotate(a = [270, 0, 0])
         cylinder(
             h=screw_hole_depth,
             d=screw_hole_diameter
         );
 
-        translate(v = [i * 42, depth[0] * 42 + 0.01, 0])
+        translate(v = [i * gf_xy_base, depth[0] * gf_xy_base + 0.01, 0])
         rotate(a = [90, 0, 0])
         cylinder(
             h=screw_hole_depth,
@@ -631,14 +710,14 @@ difference() {
         );
 
         // socket head extra interior space
-        translate(v = [i * 42, screw_socket_inset, 0])
+        translate(v = [i * gf_xy_base, screw_socket_inset, 0])
         rotate(a = [270, 0, 0])
         cylinder(
             h=screw_socket_head_depth,
             d=screw_socket_head_diameter
         );
 
-        translate(v = [i * 42, depth[0] * 42 - screw_socket_inset, 0])
+        translate(v = [i * gf_xy_base, depth[0] * gf_xy_base - screw_socket_inset, 0])
         rotate(a = [90, 0, 0])
         cylinder(
             h=screw_socket_head_depth,
@@ -646,24 +725,24 @@ difference() {
         );
 
         // nut trap
-        translate(v = [i * 42, nut_set_inset, 0])
+        translate(v = [i * gf_xy_base, nut_set_inset, 0])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
 
-        translate(v = [i * 42, depth[0] * 42 - (nut_set_inset - nut_split_fit_thickness), 0])
+        translate(v = [i * gf_xy_base, depth[0] * gf_xy_base - (nut_set_inset - nut_split_fit_thickness), 0])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
     }
 
-    translate(v = [-0.01, -21, screw_hole_height]) 
+    translate(v = [-0.01, -1 * gf_xy_base / 2, screw_hole_height]) 
     for (i=[1:1:depth[0]]) {
         // main screw hole
-        translate(v = [0, i * 42, 0])
+        translate(v = [0, i * gf_xy_base, 0])
         rotate(a = [0, 90, 0])
         cylinder(
             h=screw_hole_depth,
             d=screw_hole_diameter
         );
 
-        translate(v = [width[0] * 42 + 0.01, i * 42, 0])
+        translate(v = [width[0] * gf_xy_base + 0.01, i * gf_xy_base, 0])
         rotate(a = [0, 270, 0])
         cylinder(
             h=screw_hole_depth,
@@ -671,14 +750,14 @@ difference() {
         );
 
         // socket head extra interior space
-        translate(v = [screw_socket_inset, i * 42, 0])
+        translate(v = [screw_socket_inset, i * gf_xy_base, 0])
         rotate(a = [0, 90, 0])
         cylinder(
             h=screw_socket_head_depth,
             d=screw_socket_head_diameter
         );
 
-        translate(v = [width[0] * 42 - screw_socket_inset, i * 42, 0])
+        translate(v = [width[0] * gf_xy_base - screw_socket_inset, i * gf_xy_base, 0])
         rotate(a = [0, 270, 0])
         cylinder(
             h=screw_socket_head_depth,
@@ -686,13 +765,46 @@ difference() {
         );
 
         // nut trap
-        translate(v = [(nut_set_inset - nut_split_fit_thickness), i * 42, 0])
+        translate(v = [(nut_set_inset - nut_split_fit_thickness), i * gf_xy_base, 0])
         rotate(a = [0, 0, 90])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
 
-        translate(v = [width[0] * 42 - (nut_set_inset - nut_split_fit_thickness), i * 42, 0])
+        translate(v = [
+            width[0] * gf_xy_base - (nut_set_inset - nut_split_fit_thickness),
+            i * gf_xy_base,
+            0
+        ])
         rotate(a = [0, 0, 270])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
+    }
+
+    // magnet holes
+    if (magnets == true) {
+        translate(v = [
+            -1 * gf_xy_base / 2,
+            -1 * gf_xy_base / 2,
+            crown_bottom_rim_z - magnet_size[1]
+        ])
+        for (i = [1 : 1 : width[0]]) {
+            for (j = [ 1 : 1 : depth[0]]) {
+                // center of cup
+                translate(v = [i * gf_xy_base, j * gf_xy_base, 0])
+                for (k = [0 : 90 : 270]) {
+                // for (k = [0 : 90 : 0]) {
+                    rotate(k)
+                    translate(v = [
+                        gf_xy_base / 2 - magnet_center_edge_offset,
+                        gf_xy_base / 2 - magnet_center_edge_offset,
+                        0
+                    ])
+                    // translate(v = [0, 0 , 0]) 
+                    cylinder(
+                        d = magnet_size[0],
+                        h = magnet_size[1] + 0.01
+                    );
+                }
+            }
+        }
     }
 }
 
