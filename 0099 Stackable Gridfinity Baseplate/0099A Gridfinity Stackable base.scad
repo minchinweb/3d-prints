@@ -11,6 +11,13 @@
 // - project the top plate from 5.6mm to 7.2mm in height (so the bottom get
 //   goes all the way to the top plate)
 // - expand nut trap to 2.45mm thick (my M3 bolts measure at 2.32mm thick)
+//
+// C -- 2025-02-15 -- Changes
+//
+// - move exterior hole up (to allow for clean plate stacking)
+// - swap to M2.5 hardware
+// - add socket head "extra pocket"
+
 
 // Possible future improvements
 // - option for baseplate corner magnets. This increases the baseplate height,
@@ -31,16 +38,25 @@ use <../libs/gridfinity_extended_openscad/modules/module_gridfinity_baseplate_co
 width_gh = 4;
 depth_gh = 3;
 
-screw_hole_diameter = 3.3;
-screw_hole_depth = 20;
-// a M3 nut is nominally 5.5mm flat to flat
-nut_split_fit_width = 5.6;
-// a M3 nut is nominally 6.35mm across corners
-nut_split_fit_width_corners = 6.4;
-// a M3 nut is nominally 2.15mm thick, mine are 2.32mm
-nut_split_fit_thickness = 2.45;
+// for M3 hardware, 3.3mm
+screw_hole_diameter = 2.5;
+// to go across the bin, set to 39mm
+screw_hole_depth = 16;
+// a M3 nut is nominally 5.5mm flat to flat; include clearance here (so 5.6mm?)
+nut_split_fit_width = 5.0;
+// a M3 nut is nominally 6.35mm across corners; include clearance here
+nut_split_fit_width_corners = 5.55;
+// a M3 nut is nominally 2.15mm thick, mine are 2.32mm; include clearance here (so 2.45mm?)
+nut_split_fit_thickness = 2.05;
+screw_socket_head_diameter = 4.5;
+screw_socket_head_depth = 16;
 
-nut_set_inset = 5.4;
+// how far above the bottom the center of the screw hole is
+screw_hole_height = 5.975;
+
+// to adjust how much the nut is inside, from the outside walls of the baseplate (for M3, use 5.4mm?)
+nut_set_inset = 5.01;
+screw_socket_inset = 6.5;
 
 // adding magnets will increase the baseplate height...need to adjust for this
 baseplate_enable_magnets = false; //[true, false]
@@ -65,9 +81,9 @@ text_1 = true;
 // Add free-form text line to bin bottom (printing date, serial, etc)
 text_2 = true;
 // Actual text to add
-text_2_text = "0099B  M3       hardware";
+text_2_text = "0099C  M2.5      hardware";
 // Font Size of text, in mm (0 will auto size)
-text_size = 6; // 0.1
+text_size = 5.5; // 0.1
 // Depth of text, in mm
 text_depth = 0.3; // 0.01
 label_style = "disabled"; // [disabled: no label, normal:normal, gflabel:gflabel basic label, pred:pred - labels by pred, cullenect:Cullenect click labels V2,  cullenect_legacy:Cullenect click labels v1]
@@ -597,8 +613,9 @@ module slip_nut_profile(
 difference() {
     combined_base();
 
-    translate(v = [-21, -0.01, 7/2]) 
-    for (i=[0:1:width[0]]) {
+    translate(v = [-42/2, -0.01, screw_hole_height]) 
+    for (i=[1:1:width[0]]) {
+        // main screw hole
         translate(v = [i * 42, 0, 0])
         rotate(a = [270, 0, 0])
         cylinder(
@@ -606,13 +623,29 @@ difference() {
             d=screw_hole_diameter
         );
 
-        translate(v = [i * 42, depth[0] * 42, 0])
+        translate(v = [i * 42, depth[0] * 42 + 0.01, 0])
         rotate(a = [90, 0, 0])
         cylinder(
             h=screw_hole_depth,
             d=screw_hole_diameter
         );
 
+        // socket head extra interior space
+        translate(v = [i * 42, screw_socket_inset, 0])
+        rotate(a = [270, 0, 0])
+        cylinder(
+            h=screw_socket_head_depth,
+            d=screw_socket_head_diameter
+        );
+
+        translate(v = [i * 42, depth[0] * 42 - screw_socket_inset, 0])
+        rotate(a = [90, 0, 0])
+        cylinder(
+            h=screw_socket_head_depth,
+            d=screw_socket_head_diameter
+        );
+
+        // nut trap
         translate(v = [i * 42, nut_set_inset, 0])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
 
@@ -620,8 +653,9 @@ difference() {
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
     }
 
-    translate(v = [-0.01, -21, 7/2]) 
-    for (i=[0:1:depth[0]]) {
+    translate(v = [-0.01, -21, screw_hole_height]) 
+    for (i=[1:1:depth[0]]) {
+        // main screw hole
         translate(v = [0, i * 42, 0])
         rotate(a = [0, 90, 0])
         cylinder(
@@ -629,13 +663,29 @@ difference() {
             d=screw_hole_diameter
         );
 
-        translate(v = [width[0] * 42, i * 42, 0])
+        translate(v = [width[0] * 42 + 0.01, i * 42, 0])
         rotate(a = [0, 270, 0])
         cylinder(
             h=screw_hole_depth,
             d=screw_hole_diameter
         );
 
+        // socket head extra interior space
+        translate(v = [screw_socket_inset, i * 42, 0])
+        rotate(a = [0, 90, 0])
+        cylinder(
+            h=screw_socket_head_depth,
+            d=screw_socket_head_diameter
+        );
+
+        translate(v = [width[0] * 42 - screw_socket_inset, i * 42, 0])
+        rotate(a = [0, 270, 0])
+        cylinder(
+            h=screw_socket_head_depth,
+            d=screw_socket_head_diameter
+        );
+
+        // nut trap
         translate(v = [(nut_set_inset - nut_split_fit_thickness), i * 42, 0])
         rotate(a = [0, 0, 90])
         slip_nut_profile(nut_split_fit_width_corners, nut_split_fit_thickness);
