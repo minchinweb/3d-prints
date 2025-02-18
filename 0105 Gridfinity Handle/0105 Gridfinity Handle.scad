@@ -4,16 +4,22 @@
 // baseplates
 //
 // A -- 2025-02-16
-//
 // - first (three) passes. Eventually settled on a mostly "direct build"
 //   approach, manually tweaked.
 //
 // B -- 2025-02-17
-//
 // - add cross printing supports for screwhead
 // - add stabilizer bar to handle rim
 // - add upright support from inside end of base
 // - increase height from 4 to 5 (need to count the height of the base)
+//
+// C -- 2025-02-17
+// - completely rework geometry
+// - lower top of handle, to allow stacking (as it currently reaches the top of
+//   the stacking lip of bins)
+// - remove lip profile from handle bottom (again, to allow stacking)
+// - make base come up higher, so it matches the baseplate it's sitting next to
+
 
 use <../libs/roundedcube.scad>
 
@@ -43,7 +49,7 @@ layer_thickness = 0.2;
 font = "Aldo";
 text_size = 4;
 text_depth = 0.4;
-text_2 = "0105B";
+text_2 = "0105C";
 
 // minimum angle for a fragment (fragments = 360/fa).  Low is more fragments 
 fa = 6; 
@@ -64,21 +70,29 @@ $fn = fn;
 // My Math...
 gf_xy_base = 42;
 gf_z_base = 7;
+// additional height added by the stacking lip
+gf_z_lip = 4.4;
+// height of center of screw hole, in baseplate
+screw_hole_z = 5.975;
 
 angle_length = 50;
 
+// height of the bottom "foot" on each side of the handle
+base_height = gf_z_base + gf_z_lip - screw_hole_z + 1/2 * gf_z_base;
 handle_depth = (gf_xy_base - 0.5) / 4;
-interior_handle_height = (height_gh - 1) * gf_z_base;
+interior_handle_height = height_gh * gf_z_base - base_height - gf_z_lip;
 handle_angle_length = interior_handle_height / sin(handle_angle);
 handle_angle_x = handle_angle_length * cos(handle_angle);
 handle_top_length = (width_gf - 1) * gf_xy_base + base_width - 2 * handle_angle_x;
-interior_support_height = (base_width - handle_cross_section * 1.5) * tan(handle_angle);
+_interior_support_height = (base_width - handle_cross_section * 1.5) * tan(handle_angle);
+interior_support_height = min(_interior_support_height, interior_handle_height);
 
 echo("interior_handle_height", interior_handle_height);
 echo("handle_angle_x", handle_angle_x);
 echo("handle_angle_length", handle_angle_length);
 echo("handle_top_length", handle_top_length);
 echo("interior_support_height", interior_support_height);
+echo("base_height", base_height);
 
 text_1 = str(
     str(width_gf),
@@ -103,40 +117,43 @@ module chamber(r) {
 
 module handle_3() {
     union() {
-        translate(v = [0, 0, -nz/2]) 
-        cube(size = [base_width, handle_depth, gf_z_base]);
+        translate(v = [0, 0, 0]) 
+        cube(size = [base_width, handle_depth, base_height]);
 
         translate(v = [
-            handle_cross_section * sin(handle_angle),
             0,
-            gf_z_base - handle_cross_section
+            handle_depth * narrow_handle_depth_fraction,
+            base_height
         ])
-        rotate(a = [0, -1 * handle_angle, 0])
+        rotate(a = [180, -1 * handle_angle, 0])
         cube(size = [
-            handle_angle_length + 0.825,
+            handle_angle_length + 0 * 0.825,
             handle_depth * narrow_handle_depth_fraction,
             handle_cross_section
         ]);
 
         translate(v = [
-            handle_angle_x - 0 * handle_cross_section * sin(handle_angle) + 0.585,
-            0,
-            height_gh * gf_z_base - handle_cross_section
+            ((width_gf - 1) * gf_xy_base + base_width) / 2,
+            1/2 * handle_depth * narrow_handle_depth_fraction,
+            base_height + interior_handle_height - 1/2 * handle_cross_section
         ])
-        cube(size = [
-            handle_top_length - 1.05,
-            handle_depth * narrow_handle_depth_fraction,
-            handle_cross_section
-        ]);
+        cube(
+            size = [
+                handle_top_length - 0 * 1.05,
+                handle_depth * narrow_handle_depth_fraction,
+                handle_cross_section
+            ],
+            center = true
+        );
 
         translate(v = [
-            2 * handle_angle_x + handle_top_length - 1.4,
-            handle_depth * narrow_handle_depth_fraction,
-            gf_z_base - handle_cross_section + 0.1
+            (width_gf - 1) * gf_xy_base + base_width,
+            0,
+            base_height
         ])
-        rotate(a = [0, -1 * handle_angle, 180])
+        rotate(a = [0, 180 + handle_angle, 0])
         cube(size = [
-            handle_angle_length + 0.69,
+            handle_angle_length + 0 * 0.69,
             handle_depth * narrow_handle_depth_fraction,
             handle_cross_section
         ]);
@@ -144,16 +161,16 @@ module handle_3() {
         translate(v = [
             (width_gf - 1) * gf_xy_base,
             0,
-            -nz/2
+            0
         ])
-        cube(size = [base_width, handle_depth, gf_z_base]);
+        cube(size = [base_width, handle_depth, base_height]);
 
         // vertical extra supports
         translate(v = [base_width - handle_cross_section, 0, 0])
         cube(size = [
             handle_cross_section,
             handle_depth * narrow_handle_depth_fraction,
-            interior_support_height + gf_z_base
+            interior_support_height + base_height
         ]);
 
         translate(v = [
@@ -164,37 +181,41 @@ module handle_3() {
         cube(size = [
             handle_cross_section,
             handle_depth * narrow_handle_depth_fraction,
-            interior_support_height + gf_z_base
+            interior_support_height + base_height
         ]);
 
         // stabilizer rim
         translate(v = [
-            handle_cross_section * sin(handle_angle) + 2.8,
             0,
-            gf_z_base - handle_cross_section
+            handle_cross_section,
+            base_height
         ])
-        rotate(a = [0, -1 * handle_angle, 0])
+        rotate(a = [180, -1 * handle_angle, 0])
         cube(size = [
-            handle_angle_length - 2.0,
+            handle_angle_length,
             handle_cross_section,
             handle_cross_section * 2
         ]);
 
         translate(v = [
-            handle_angle_x - 0 * handle_cross_section * sin(handle_angle) + 0.585,
-            0,
-            height_gh * gf_z_base - handle_cross_section * 2
+            ((width_gf - 1) * gf_xy_base + base_width) / 2,
+            1/2 * handle_cross_section,
+            base_height + interior_handle_height - 1/2 * handle_cross_section * 2
         ])
-        cube(size = [
-            handle_top_length - 1.05,
-            handle_cross_section,
-            handle_cross_section * 2
-        ]);
+        cube(
+            size = [
+                handle_top_length - 1.05,
+                handle_cross_section,
+                handle_cross_section * 2
+            ],
+            center = true
+        );
 
         translate(v = [
-            2 * handle_angle_x + handle_top_length,
+            // 2 * handle_angle_x + handle_top_length,
+            (width_gf - 1) * gf_xy_base + base_width,
             0,
-            gf_z_base - nz/2
+            base_height
         ])
         rotate(a = [0, 180 + handle_angle, 0])
         cube(size = [
@@ -264,6 +285,19 @@ module screw_hole() {
     }
 }
 
+module gridfinity_lip_profile(length) {
+    translate(v = [2.15, length / 2, 0])
+    rotate(a = [0, 45, 0])
+    cube(size = [0.8 / sin(45), length, 0.8 / sin(45)], center = true);
+
+    cube(size = [2.15, length, 0.8 + 1.8]);
+
+    translate(v = [0, length / 2, 0.8 + 1.8])
+    rotate(a = [0, 45, 0])
+    cube(size = [2.15 / sin(45), length, 2.15 / sin(45)], center = true);
+
+}
+
 difference() {
     handle_3();
 
@@ -275,10 +309,22 @@ difference() {
     rotate(a = [270, 0, 0])
     screw_hole();
 
+    // gridfinity stacking profile
+    translate(v = [
+        -1 * gf_xy_base / 4,
+        handle_depth,
+        -1 * (gf_z_base + gf_z_lip - base_height)
+    ])
+    rotate(a= [0, 0, 270])
+    gridfinity_lip_profile(length = width_gf * gf_xy_base); 
+
+
+    // text label
     translate(v = [
         handle_angle_x + text_size ,
         handle_cross_section + 0.5,
-        height_gh * gf_z_base - handle_cross_section - text_depth]) 
+        base_height + interior_handle_height - handle_cross_section - text_depth
+    ]) 
     linear_extrude(height = text_depth * 2) {
         rotate(a = [0, 180, 180])
         text(
@@ -294,3 +340,4 @@ difference() {
         );
     }
 }
+
