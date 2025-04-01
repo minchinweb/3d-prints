@@ -124,6 +124,8 @@ pin_k_3 = 2.0;
 m3_wafer_head_diameter = 6.9;
 m3_wafer_head_thickness = 0.76;
 
+
+// [ Motor ]
 // including the front plate, but not the back contracts
 motor_length = 24.0;
 motor_width = 12.0;
@@ -136,7 +138,7 @@ marble_tank_thickness = 3;
 
 // [ Arduino Standoffs ]
 arduino_standoffs_height = 3;
-arduino_standoffs_diameter = 4; // needs to be the size bigger than the arduino holes
+arduino_standoffs_thickness = 1;
 
 // [ Drafting Lines ]
 
@@ -214,8 +216,10 @@ echo ("hello world !!!");
 seeding_wheel();
 // track_plate();
 // upper_frame_2();
+// translate([0, 0, _z08])
 // upper_frame ();
 // frame();
+// translate([-marble_diameter * 11 + marble_tolerance * 11 - seeding_wheel_diameter / 2, 0, 44])
 // marble_tank();
 // arduino_standoffs();
 // exit_tube();
@@ -1062,16 +1066,25 @@ module frame() {
             ])
             cube([frame_thickness, motor_length + motor_box_clearance, frame_thickness]);
         }
+
+        translate([0, motor_length * 2.2 + motor_box_clearance * 2, 0])
+        rotate([0, 34, 0])
+        cube([frame_thickness * 1.3, motor_length + motor_box_clearance, 1]);
+
+        translate([0, -motor_length * 4.6 - motor_box_clearance * 2, 0])
+        rotate([0, 34, 0])
+        cube([frame_thickness * 1.3, motor_length + motor_box_clearance, 1]);
     }
 }
 
-module arduino_standoffs(){
+module arduino_standoffs() {
+color("orchid")
     difference() {
-    translate([0, 0, 0])
-    cylinder(d = arduino_standoffs_diameter, h = arduino_standoffs_height);
+    translate([0, 0, 10])
+    cylinder(d = m3_hardware + 0.2 + arduino_standoffs_thickness, h = arduino_standoffs_height);
 
-    _arduino_uno_holes();
-    //need to take off 0.02 of the arduino uno holes, and move the standoffs up/down 0.01
+    translate([0, 0, 9.99])
+    #cylinder(d = 3.2, h = arduino_standoffs_height + 0.02);
 
     }
 }
@@ -1081,6 +1094,9 @@ module upper_frame() {
     _serial = "0116-11A";
     frame_width = _y08 - _y01;
     frame_height = _z05 - _z08 - frame_thickness * 2;
+    
+    _support_x = [_x02, _x04];
+    _support_y = [_y01, _y08 - frame_thickness];
 
         // rear support for seeding wheel
     
@@ -1091,6 +1107,54 @@ module upper_frame() {
         // track plate mounting holes
         translate([-_x04, -_y01, 10])
         _track_plate_to_frame_holes();
+
+        // 
+
+        translate([
+            frame_thickness * 3 - seeding_wheel_diameter / 8.5,
+            frame_thickness * 2,
+            -0.01
+        ])
+        cylinder(d = m3_hardware + 0.2, h = frame_thickness * 2);
+
+        translate([
+            frame_thickness * 3 - seeding_wheel_diameter / 8.5,
+            -_y01 + _y08 - frame_thickness - frame_thickness * 1,
+            -0.01
+        ])
+        cylinder(d = m3_hardware + 0.2, h = frame_thickness * 2);
+
+//these ones were extra/duplicates
+         // connection holes to upper frame 2
+            // translate([
+            //     _support_x[0] + frame_thickness / 2,
+            //     _support_y[0] + frame_thickness * 2,
+            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
+            // ])
+            // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
+
+            // translate([
+            //     _support_x[1] + frame_thickness / 2,
+            //     _support_y[1] - frame_thickness * 1,
+            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
+            // ])
+            // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
+
+
+            //connection holes to upper frame 2
+            // translate([
+            //     _support_x[i] + frame_thickness / 2,
+            //     _support_y[0] + frame_thickness * 6,
+            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
+            // ])
+            // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
+
+            // translate([
+            //     _support_x[i] + frame_thickness / 2,
+            //     _support_y[1] - frame_thickness * 3,
+            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
+            // ])
+            // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
     }
 
     // front support for seeding wheel
@@ -1123,32 +1187,18 @@ module upper_frame() {
             frame_thickness * 2,
             -0.01
         ])
-        cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
+        cylinder(d = m3_hardware + 0.2, h = frame_thickness * 2);
 
         translate([
             frame_thickness / 2,
             -_y01 + _y08 - frame_thickness - frame_thickness * 1,
             -0.01
         ])
-        cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
+        cylinder(d = m3_hardware + 0.2, h = frame_thickness * 2);
 
-        #translate([
-            -frame_thickness * 2 - seeding_wheel_diameter / 2 - frame_thickness,
-            frame_thickness * 2,
-            -0.01
-        ])
-        cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
-        #translate([
-            -frame_thickness * 2 - seeding_wheel_diameter / 2 - frame_thickness,
-            -_y01 + _y08 - frame_thickness - frame_thickness * 1,
-            -12
-        ])
-        cylinder(d = m3_hardware - 0.1, h = frame_thickness * 7);
     }
 
-    _support_x = [_x02, _x04];
-    _support_y = [_y01, _y08 - frame_thickness];
 
     for (i = [0 : len(_support_x) - 1]) {
         for (j = [0 : len(_support_y) - 1]) {
@@ -1179,37 +1229,6 @@ module upper_frame() {
                 -frame_height - 0.01
             ])
             cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-            // connection holes to upper frame 2
-            // translate([
-            //     _support_x[i] + frame_thickness / 2,
-            //     _support_y[0] + frame_thickness * 2,
-            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-            // ])
-            // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-            // translate([
-            //     _support_x[i] + frame_thickness / 2,
-            //     _support_y[1] - frame_thickness * 1,
-            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-            // ])
-            // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-
-            // connection holes to upper upper frame
-            // translate([
-            //     _support_x[i] + frame_thickness / 2,
-            //     _support_y[0] + frame_thickness * 6,
-            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-            // ])
-            // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-            // translate([
-            //     _support_x[i] + frame_thickness / 2,
-            //     _support_y[1] - frame_thickness * 3,
-            //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-            // ])
-            // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
             
         }
@@ -1344,86 +1363,88 @@ module _track_plate_to_frame_holes() {
 }
 
 module marble_tank() {
-
     //TO-DO : add screw holes
+    marble_count = 10;
 
+    translate([
+        -marble_diameter * (marble_count + 1),
+        -(marble_diameter + marble_tolerance + marble_tank_thickness)/2,
+        marble_diameter
+    ]) {
 
-    difference(){
-        union() {
-        rotate([0, 10, 0])
-        translate([0, 0, 10])
+        difference(){
+            union() {
+                rotate([0, 10, 0])
+                translate([0, 0, 10])
+                // case
+                cube([
+                    marble_diameter * marble_count + marble_tolerance * marble_count + marble_tank_thickness,
+                    marble_diameter + marble_tolerance + marble_tank_thickness,
+                    marble_diameter + marble_tolerance + marble_tank_thickness
+                ]);
 
-        // case
-        cube([
-            marble_diameter * 10 + marble_tolerance * 10 + marble_tank_thickness,
+                // chute
+                translate([
+                    (marble_diameter + marble_tolerance) * (marble_count - 1),
+                    0,
+                    -marble_diameter - frame_thickness - 1.5
+                ])
+                cube([
+                    marble_diameter + marble_tolerance + marble_tank_thickness,
+                    marble_diameter + marble_tolerance + marble_tank_thickness,
+                    frame_thickness
+                ]);
+            }
+            
+            // hole in case
+            rotate([0, 10, 0])
+            translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
+            cube([
+                marble_diameter * 10 + marble_tolerance * 10,
+                marble_diameter + marble_tolerance,
+                marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
+            ]);
+
+            // hole in chute
+            translate([
+                marble_diameter * 9 + marble_tolerance * 9 + 0.2,
+                marble_tank_thickness / 2,
+                -marble_diameter * 2.5 - marble_diameter
+            ])
+            cube([
+                marble_diameter + marble_tolerance,
+                marble_diameter + marble_tolerance,
+                marble_diameter + marble_diameter / 2 + marble_tolerance + 40
+            ]);
+
+        }
+
+        // plate with holes for screwing on
+        translate([0, 0, -marble_diameter - marble_tolerance])
+            cube([
+            marble_diameter * 9 + marble_tolerance * 9,
             marble_diameter + marble_tolerance + marble_tank_thickness,
-            marble_diameter + marble_tolerance + marble_tank_thickness
+            1
         ]);
 
-        // shute
-        translate([marble_diameter * 9 + marble_tolerance * 9, 0, -marble_diameter -frame_thickness - 1.5])
+        // support for the back of the tank
+        difference() {
+            translate([5, 0, -16])
             cube([
                 marble_diameter + marble_tolerance + marble_tank_thickness,
                 marble_diameter + marble_tolerance + marble_tank_thickness,
-                frame_thickness
+                26
+            ]);
+
+            rotate([0, 10, 0])
+            translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
+            cube([
+                marble_diameter * 10 + marble_tolerance * 10,
+                marble_diameter + marble_tolerance,
+                marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
             ]);
         }
-        
-        // hole in case
-        rotate([0, 10, 0])
-        translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
-        cube([
-            marble_diameter * 10 + marble_tolerance * 10,
-            marble_diameter + marble_tolerance,
-            marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
-        ]);
-
-        // hole in chute
-
-        // translate([
-        //     marble_tank_thickness / 2 + marble_diameter * 9 + marble_tank_thickness * 9,
-        //     marble_tank_thickness / 2,
-        //     -1 -marble_diameter * 2.5 + 20
-        //     ])
-        translate([
-            marble_diameter * 9 + marble_tolerance * 9 + 0.2,
-            marble_tank_thickness / 2,
-            -marble_diameter * 2.5 - marble_diameter
-        ])
-        cube([
-            marble_diameter + marble_tolerance,
-            marble_diameter + marble_tolerance,
-            marble_diameter + marble_diameter / 2 + marble_tolerance + 40
-        ]);
-
-    }
-
-    // plate with holes for screwing on
-    translate([0, 0, -marble_diameter - marble_tolerance])
-    cube([
-        marble_diameter * 9 + marble_tolerance * 9,
-        marble_diameter + marble_tolerance + marble_tank_thickness,
-        1
-    ]);
-
-    // support for the back of the tank
-    difference() {
-        translate([5, 0, -16])
-        cube([
-            marble_diameter + marble_tolerance + marble_tank_thickness,
-            marble_diameter + marble_tolerance + marble_tank_thickness,
-            26
-        ]);
-
-        rotate([0, 10, 0])
-        translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
-        cube([
-            marble_diameter * 10 + marble_tolerance * 10,
-            marble_diameter + marble_tolerance,
-            marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
-        ]);
-
-    }
+    }  // master translate
 }
 
 module assembly_view(exploded = 0) {
@@ -1433,6 +1454,11 @@ module assembly_view(exploded = 0) {
     color("salmon")
     translate([_x03, _y05, _z02 + 3 * _z_explode])
     seeding_wheel();
+
+    color("Yellow")
+    // translate([-marble_diameter * 11 + marble_tolerance * 11 - seeding_wheel_diameter / 2, 0, 44])
+    translate([_x03, _y05, _z02 + 3 * _z_explode])
+    marble_tank();
 
     color("DarkOrchid")
     translate ([_x03, _y05, _z07 - 1 * _z_explode])
@@ -1537,4 +1563,10 @@ module assembly_view(exploded = 0) {
     ])
     rotate([270, 0 ,0])
     odometer_wheel();
+
+    // color("orchid")
+    // translate([0, 0, 0])
+    // arduino_standoffs();
 }
+
+
