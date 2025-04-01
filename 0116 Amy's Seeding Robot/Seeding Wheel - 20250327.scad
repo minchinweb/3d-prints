@@ -37,7 +37,8 @@ deboss_depth = 1;
 font_face = "Aldo";
 font_size = 5;
 
-dimension_d_x = marble_diameter / 2 + line_width * 2;
+// placement of measurements on top of seeding wheel
+dimension_d_x = marble_diameter / 2 + line_width * 2 + 4;
 dimension_d_y = 3;
 
 seeding_radius = seeding_circumfrance / (2 * PI);
@@ -50,7 +51,7 @@ seeding_wheel_height = marble_hole_diameter;
 // [ Odometer Wheels ]
 odometer_wheel_diameter = 33.5;
 odometer_wheel_thickness =  6.6;
-odometer_wheel_shaft_diameter = 2.7;
+odometer_wheel_shaft_diameter = 3.0;
 odometer_wheel_shaft_length = 8.7;
 // odometer_wheel_shaft_d_height = 2.26;
 odometer_wheel_shaft_d_height = 2.45;
@@ -92,8 +93,8 @@ track_plate_min_height = 1;
 
 upper_track_width = 1;
 upper_track_height = 3;
-upper_track_xy_tolerance = 0.2;
-upper_track_z_tolerance = 0.2;
+upper_track_xy_tolerance = 0.8;
+upper_track_z_tolerance = 0.4;
 
 exit_pipe_length = 50;
 exit_pipe_wall_thickness = 1.5;
@@ -120,8 +121,8 @@ m25_thread_pitch = 0.45;  // coarse pitch
 pin_k_25 = 2.0;
 // https://ca.store.bambulab.com/products/m3-socket-head-cap-machine-screws-shcs
 pin_k_3 = 2.0;
-m3_wafer_head_diameter = 5.9;
-m3_wafer_head_thickness = 0.7;
+m3_wafer_head_diameter = 6.9;
+m3_wafer_head_thickness = 0.76;
 
 // including the front plate, but not the back contracts
 motor_length = 24.0;
@@ -177,6 +178,8 @@ _y01 = _y02 - frame_thickness - frame_rotating_clearance;
 
 // seeding wheel bottom
 _z02 = track_plate_height + upper_track_z_tolerance;
+// seeding wheel top
+_z01 = _z02 + seeding_wheel_height;
 // track plate bottom
 _z05 = 0;
 // top of seeding gear
@@ -191,13 +194,14 @@ _z12 = _z11 - transfer_bevel_gear_diameter / 2;
 _z13 = _z12 - odometer_wheel_diameter / 6;
 
 echo(
+    "_z01", _z01,
     "_z02", _z02,
     "_z05", _z05,
     "_z07", _z07,
     "_z08", _z08,
     "_z11", _z11,
     "_z12", _z12,
-    "_z13", _z13,
+    "_z13", _z13
 );
 
 
@@ -205,9 +209,9 @@ $fn=90;
 
 echo ("hello world !!!");
 
-assembly_view(exploded = 0);
+// assembly_view(exploded = 0);
 
-// seeding_wheel();
+seeding_wheel();
 // track_plate();
 // upper_frame_2();
 // upper_frame ();
@@ -216,9 +220,21 @@ assembly_view(exploded = 0);
 // arduino_standoffs();
 // exit_tube();
 
+// translate([0, 0, 25 - 10])
+// rotate([0, 0, 270])
+// pin_wheel();
+
+// color("Gold")
+// #transfer_bevel_gear();
+
+// pin_wheel();
+
+track_plate();
+
+// transfer_spur_gear();
 
 module seeding_wheel() {
-    _serial = "0116-01A";
+    _serial = "0116-01B";
 
     difference() {
         translate([0, 0, 0])
@@ -244,200 +260,27 @@ module seeding_wheel() {
         _seeding_wheel_mounting_holes();
 
         // inch measures
-        rotate([0,0,0])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
+        _labels = ["12\"", "1\"", "2\"", "3\"", "4\"", "5\"", "6\"", "7\"", "8\"", "9\"", "10\"", "11\""];
+        for (i = [0 : len(_labels) - 1]){
+            rotate([0,0,30 * i])
+            translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
             translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
-                "12\"",
+                _labels[i],
                 size = font_size,
                 font = font_face,
                 halign = "left",
-                valign = "baseline",
+                valign = "baseline"
             );
+            }
         }
 
-        rotate([0,0,30])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "1\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-        
-        rotate([0,0,60])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "2\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-        
-        rotate([0,0,90])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "3\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-        
-        rotate([0,0,120])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "4\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-            
-        rotate([0,0,150])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "5\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-        
-        rotate([0,0,180])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "6\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-            
-        rotate([0,0,210])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "7\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-            
-        rotate([0,0,240])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "8\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-            
-        rotate([0,0,270])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "9\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-    
-        rotate([0,0,300])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "10\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
-            
-        rotate([0,0,330])
-        translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
-            cube([measuring_line_length, line_width, deboss_depth + 0.01]);
-
-            translate([dimension_d_x, dimension_d_y, 0])
-            rotate([0,0,0])
-            linear_extrude(deboss_depth + 0.01)
-            text(
-                "11\"",
-                size = font_size,
-                font = font_face,
-                halign = "left",
-                valign = "baseline",
-            );
-        }
 
         // tracks to match track plate
-
         translate([0, 0, -0.01]) {
             // outer track
             difference() {
@@ -481,7 +324,7 @@ module seeding_wheel() {
             size = font_size,
             font = font_face,
             halign = "center",
-            valign = "baseline",
+            valign = "baseline"
         );
     }
 }
@@ -514,18 +357,24 @@ module seeding_gear() {
             size = font_size,
             font = font_face,
             halign = "center",
-            valign = "baseline",
+            valign = "baseline"
         );
     }
 }
 
 module _seeding_wheel_mounting_holes() {
     // for seeding wheel and gear, to connect the two together with screws
-    translate([0, 0, -25])
+    translate([0, 0, -0.01])
     for (i = [0 : mounting_hole_count]){
         rotate([0, 0, (i + 0.5) * 360 / mounting_hole_count])
-        translate([seeding_radius - mounting_hole_inset, 0, 0])
-        cylinder(h = 200, d = mounting_hardware_diameter);
+        translate([seeding_radius - mounting_hole_inset, 0, 0]) {
+            cylinder(h = seeding_wheel_height + 0.02, d = mounting_hardware_diameter);
+
+            // depression for screw heads
+            translate([0, 0, 5])
+            cylinder(h = seeding_wheel_height + 0.02, d = m3_wafer_head_diameter + 0.4);
+        }
+
     }
 }
 
@@ -533,20 +382,20 @@ module _exit_tube_mounting_holes() {
     // assumed M3 hardware
 
     module _a_hole() {
-        cylinder(d = 3, h = 10);
+        cylinder(d = 3 + 0.2, h = 10);
 
-        cylinder(d = m3_wafer_head_diameter + 0.1, h = m3_wafer_head_thickness + 0.1);
+        cylinder(d = m3_wafer_head_diameter + 0.3, h = m3_wafer_head_thickness + 0.2);
 
         // clear access path
         translate([0, 0, -10])
-        cylinder(d = m3_wafer_head_diameter + 0.1, h = 10);
+        cylinder(d = m3_wafer_head_diameter + 0.3, h = 10);
     }
 
-    _angles = [68, 126, 303];
+    _angles = [72, 124, 302];
 
     for (i = [0 : len(_angles) - 1]) {
         rotate([0, 0, _angles[i]])
-        translate([(exit_pipe_outer_diameter + 2) / 2, 0, 0])
+        translate([(exit_pipe_outer_diameter + 4) / 2, 0, 0])
         _a_hole();
     }
 }
@@ -576,40 +425,59 @@ module exit_tube() {
         circle(d = exit_pipe_outer_diameter);
         circle(d = exit_pipe_inner_diameter);
     }
-//plate to connect it to the track plate
-difference() {
-    color("red")
-        translate([exit_pipe_outer_diameter + 7, -exit_pipe_outer_diameter / 1.4, 0])
-        cube([
-            exit_pipe_outer_diameter * 1.2, 
-            exit_pipe_outer_diameter * 1.4,
-            1
-        ]);
+    //plate to connect it to the track plate
+    difference() {
+        color("red")
+            translate([exit_pipe_outer_diameter + 7, -exit_pipe_outer_diameter / 1.4, 0])
+            cube([
+                exit_pipe_outer_diameter * 1.2, 
+                exit_pipe_outer_diameter * 1.4,
+                1
+            ]);
 
-//the holes for in the plate
-//didn't have time to proprely orient them, and we need the center hole
-        // translate([exit_pipe_outer_diameter * 2, 0, 0])
-        // #_exit_tube_mounting_holes();
+    //the holes for in the plate
+    //didn't have time to proprely orient them, and we need the center hole
+            // translate([exit_pipe_outer_diameter * 2, 0, 0])
+            // #_exit_tube_mounting_holes();
 
-}
+    }
 }
 
 module track_plate() {
-    // includes exit tunnel
-
     // TO-DO: mounting to frame (so that it doesn't move)
-    //        separate exit tunnel from track plate so that it screws together(easier printing)
+    // TO-DO: separate exit tunnel from track plate so that it screws together
+    //          (easier printing)
 
-    _serial = "0116-03A";
+    _serial = "0116-03B";
 
     difference() {
         union() {
             // basic plate
             difference() {
-                cylinder (
-                    h = track_plate_height,
-                    r = track_plate_outer_diameter
-                );
+                union() {
+                    cylinder (
+                        h = track_plate_height,
+                        r = track_plate_outer_diameter
+                    );
+
+                    // bump out for extra support around exit tube mounting and frame
+                    // mounts
+                    _bump_angles = [
+                        12.5,
+                        38,
+                        65,
+                        115,
+                        141,
+                        218,
+                        232,
+                        308,
+                        322
+                    ];
+                    for (i = [0: len(_bump_angles) -  1])
+                    rotate([0, 0, _bump_angles[i]])
+                    translate([track_plate_outer_diameter - 2, 0, 0])
+                    cylinder(h = track_plate_height, d = m3_wafer_head_diameter * 1.25);
+                }
 
                 // center hole
                 translate ([0, 0, -0.01])
@@ -633,7 +501,7 @@ module track_plate() {
                 translate([
                     seeding_radius,
                     0,
-                    0.01,
+                    deboss_depth,
                 ])
                 rotate([180, 0, 90])
                 linear_extrude(deboss_depth + 0.01)
@@ -642,7 +510,7 @@ module track_plate() {
                     size = font_size,
                     font = font_face,
                     halign = "center",
-                    valign = "baseline",
+                    valign = "baseline"
                 );
             }
 
@@ -685,7 +553,6 @@ module track_plate() {
                         r = track_plate_inner_diameter
                     );
                 }
-
             }
         }
 
@@ -703,20 +570,20 @@ module track_plate() {
 module transfer_spur_gear() {
     //for all the other gears (cause they have to be the same size) 
 
-    _serial = "0116-04A";
+    _serial = "0116-04C";
 
     difference() {
         spur_gear(
             circular_pitch,
             transfer_spur_gear_teeth,
             transfer_spur_gear_thickness,
-            pressure_angle = pressure_angle,
+            pressure_angle = pressure_angle
             // shaft_diam = transfer_spur_gear_shaft_diameter
         );
 
         // shaft
         translate([0, 0, -transfer_spur_gear_thickness])
-        _d_shaft(shaft_length = transfer_spur_gear_thickness * 2, clearance = 0);
+        _d_shaft(shaft_length = transfer_spur_gear_thickness * 2, clearance = -0.2);
 
         // serial
         translate([
@@ -731,13 +598,14 @@ module transfer_spur_gear() {
             size = font_size,
             font = font_face,
             halign = "center",
-            valign = "baseline",
+            valign = "baseline"
         );
     }
 }
 
 module odometer_wheel() {
     // origin is inside side of wheel (0, 0 is the inside, not vice versa)
+    // this is a non-printed part; here only for the exploded view
 
     translate([0, 0, -odometer_wheel_hub_thickness])
     difference() {
@@ -756,7 +624,7 @@ module transfer_bevel_gear() {
     // one set is going to be underneath the spur gears and connected to the 2nd set connected to the wheels
 
     _serial_1 = "0116";
-    _serial_2 = "-5A";
+    _serial_2 = "-5C";
 
     difference(){
         bevel_gear(
@@ -765,13 +633,13 @@ module transfer_bevel_gear() {
             shaft_angle = 90,
             spiral = 0,  // zero angle gives a zerol teeth
             circ_pitch = circular_pitch,  // doesn't have to match other spur gears
-            thickness = transfer_bevel_gear_thickness,
-            // shaft_diam = m3_hardware,
+            thickness = transfer_bevel_gear_thickness
+            // shaft_diam = m3_hardware
         );
 
         // shaft
         translate([0, 0, -transfer_spur_gear_thickness])
-        _d_shaft(shaft_length = transfer_spur_gear_thickness * 2, clearance = 0);
+        _d_shaft(shaft_length = transfer_spur_gear_thickness * 2, clearance = -0.2);
 
         // serial
         translate([
@@ -786,7 +654,7 @@ module transfer_bevel_gear() {
                 size = font_size,
                 font = font_face,
                 halign = "center",
-                valign = "baseline",
+                valign = "baseline"
             );
             translate([0, -2.5 - font_size * 1.4, 0])
             text(
@@ -794,7 +662,7 @@ module transfer_bevel_gear() {
                 size = font_size,
                 font = font_face,
                 halign = "center",
-                valign = "baseline",
+                valign = "baseline"
             );
         }
 
@@ -810,28 +678,42 @@ module transfer_bevel_gear() {
             size = font_size * 0.8,
             font = font_face,
             halign = "center",
-            valign = "baseline",
+            valign = "baseline"
         );
     }
 }
 
 module _d_shaft(shaft_length, clearance = 0) {
-    // it is our hole in the transfer gears and the wheels(pre-made), so that they spin together.
+    // it is our hole in the transfer gears and the (pre-made) wheels, so that
+    // they spin together. This is cut from the gears, but a different model is
+    // used to create the pins that tie everything together.
     //
-    // shaft_length: how tall the shaft(hole/pin) is
-    // clearance:how much is removed from the edges of the hole for the pin so that it fits nicely
+    // shaft_length: how tall the shaft (hole/pin) is
+    // clearance: how much is removed from the edges of the hole for the pin so
+    //            that it fits nicely
     //
     // if in need of example (demo) (pink is pin, yellow is hole):
     //
     //    color("pink")
     //    _d_shaft(10, 0.3);
     //    _d_shaft(9);
+    //
+    // Test with pin:
+    //
+    //    color("pink")
+    //    translate([0, 0, 15])
+    //    rotate([0, 0, 270])
+    //    pin_wheel();
+    //
+    //    _d_shaft(9, clearance = -0.2);
 
     difference() {
         cylinder(h = shaft_length, d = odometer_wheel_shaft_diameter - clearance);
 
+        // translate x clearance:
+        //      A & B have /2, C has /4
         translate([
-            -odometer_wheel_shaft_diameter / 2 + odometer_wheel_shaft_d_height - clearance / 2,
+            -odometer_wheel_shaft_diameter / 2 + odometer_wheel_shaft_d_height - clearance / 4,
             -odometer_wheel_shaft_diameter / 2,
             -0.01
         ])
@@ -844,6 +726,12 @@ module _d_shaft(shaft_length, clearance = 0) {
 }
 
 module _pin_shaft(shank_length, shaft_length) {
+    // base model for making all pins
+    // D-shaft to allow gears to turn together
+
+    // stopped after K. I think the manufacturing tolerances (on a 0.4mm
+    // nozzle) just aren't there to get any better
+
     _dia = 3;  // screw_shaft_diameter
     _length = 25;
 
@@ -854,19 +742,21 @@ module _pin_shaft(shank_length, shaft_length) {
                 head = "socket",
                 drive = "hex",
                 length = shaft_length,
-                anchor = "head_bot",
-
+                anchor = "head_bot"
             );
 
             rotate([180, 0, 0])
-            cylinder(d = _dia - 0.075, h = shank_length);  // F is -0.1, G is -0.05 (and too tight), H is -0.075
-
-
+            // for diameter:
+            //      F is -0.1, G is -0.05 (and too tight), H & J is -0.075,
+            //      I (too tight) & K is -0.0625
+            cylinder(d = _dia - 0.0625, h = shank_length);
         }
 
+        // for y-translate:
+        //          H & K is 0, I & J is +0.1 (too tight at shank)
         translate([
             -_dia / 2,
-            -_dia / 2 + odometer_wheel_shaft_d_height - 0 * pin_clearance,
+            -_dia / 2 + odometer_wheel_shaft_d_height + 0 - 0 * pin_clearance,
             -_length - 10,
         ])
         cube([
@@ -875,12 +765,11 @@ module _pin_shaft(shank_length, shaft_length) {
             _length + 10
         ]);
     }
-
 }
 
 module pin_wheel() {
     // to attach the odometer wheel to the bevel transfer gear
-    _serial = "0116-06H";
+    _serial = "0116-06K";
 
     _shank_length = (
         odometer_wheel_hub_thickness
@@ -1432,24 +1321,23 @@ module upper_frame_2() {
     // }
 }
 
+_track_plate_mounting_angles = [38, 52, 128, 142, 219, 245, 295, 322];
 module _track_plate_to_frame_holes() {
     // assumed M3 hardware
 
     module _a_hole() {
-        cylinder(d = 3, h = 10*5);
+        cylinder(d = 3 + 0.2, h = 10*5);
 
-        cylinder(d = m3_wafer_head_diameter + 0.1, h = m3_wafer_head_thickness + 0.1);
+        cylinder(d = m3_wafer_head_diameter + 0.3, h = m3_wafer_head_thickness + 0.2);
 
         // clear access path
         translate([0, 0, -10])
-        cylinder(d = m3_wafer_head_diameter + 0.1, h = 10);
+        cylinder(d = m3_wafer_head_diameter + 0.3, h = 10);
     }
 
-    _angles = [38, 52, 128, 142, 219, 245, 295, 322];
-
     rotate([180, 0, 0])
-    for (i = [0 : len(_angles) - 1]) {
-        rotate([0, 0, _angles[i]])
+    for (i = [0 : len(_track_plate_mounting_angles) - 1]) {
+        rotate([0, 0, _track_plate_mounting_angles[i]])
         translate([seeding_radius + 9, 0, 0])
         _a_hole();
     }
