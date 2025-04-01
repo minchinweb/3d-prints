@@ -22,7 +22,7 @@ marble_diameter = 9/16*inch;
 marble_tolerance = 2;
 wheel_outer_border = 12;
 
-center_hole_dimater = m3_hardware;  // for M3 hardware
+center_hole_diameter = m3_hardware;  // for M3 hardware
 
 // including clearances
 mounting_hardware_diameter = m3_hardware;  // for M3
@@ -38,7 +38,7 @@ font_face = "Aldo";
 font_size = 5;
 
 dimension_d_x = marble_diameter / 2 + line_width * 2;
-dimention_d_y = 3;
+dimension_d_y = 3;
 
 seeding_radius = seeding_circumfrance / (2 * PI);
 seeding_wheel_diameter = (seeding_radius + marble_diameter / 2 + wheel_outer_border) * 2;
@@ -112,7 +112,7 @@ exit_pipe_mounting_screw_count = 3;
 pin_head_height = 2.5;  // to match M2.5 socket head screws
 frame_thickness = 1/4 * inch;  // 6.35mm
 frame_rotating_clearance = 1;
-pin_tail_lenght = 3.0;
+pin_tail_length = 3.0;
 m25_thread_pitch = 0.45;  // coarse pitch
 
 // M2.5 hardware has a 2.0mm hex drive
@@ -230,7 +230,7 @@ module seeding_wheel() {
 
         // center hole (for rotating)
         translate([0, 0, -0.01])
-        cylinder(h = seeding_wheel_height + 0.02, d = center_hole_dimater);
+        cylinder(h = seeding_wheel_height + 0.02, d = center_hole_diameter);
 
         // seeding ring
         translate([0, 0, seeding_wheel_height - deboss_depth])
@@ -248,7 +248,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -264,7 +264,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -280,7 +280,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -296,7 +296,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -312,7 +312,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -328,7 +328,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -344,7 +344,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -360,7 +360,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -376,7 +376,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -392,7 +392,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -408,7 +408,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -424,7 +424,7 @@ module seeding_wheel() {
         translate([seeding_wheel_diameter / 2 - measuring_line_length, -line_width / 2, seeding_wheel_height - deboss_depth]) {
             cube([measuring_line_length, line_width, deboss_depth + 0.01]);
 
-            translate([dimension_d_x, dimention_d_y, 0])
+            translate([dimension_d_x, dimension_d_y, 0])
             rotate([0,0,0])
             linear_extrude(deboss_depth + 0.01)
             text(
@@ -595,10 +595,10 @@ difference() {
 }
 
 module track_plate() {
-    // inlcudes exit tunnel
+    // includes exit tunnel
 
     // TO-DO: mounting to frame (so that it doesn't move)
-    //        seperate exit tunnel from track plate so that it screws together(easier printing)
+    //        separate exit tunnel from track plate so that it screws together(easier printing)
 
     _serial = "0116-03A";
 
@@ -816,7 +816,7 @@ module transfer_bevel_gear() {
 }
 
 module _d_shaft(shaft_length, clearance = 0) {
-    // it is our hole in the transfer gears and the wheels(premade), so that they spin together.
+    // it is our hole in the transfer gears and the wheels(pre-made), so that they spin together.
     //
     // shaft_length: how tall the shaft(hole/pin) is
     // clearance:how much is removed from the edges of the hole for the pin so that it fits nicely
@@ -845,7 +845,7 @@ module _d_shaft(shaft_length, clearance = 0) {
 
 module _pin_shaft(shank_length, shaft_length) {
     _dia = 3;  // screw_shaft_diameter
-    _lenght = 25;
+    _length = 25;
 
     difference() {
         union() {
@@ -867,12 +867,12 @@ module _pin_shaft(shank_length, shaft_length) {
         translate([
             -_dia / 2,
             -_dia / 2 + odometer_wheel_shaft_d_height - 0 * pin_clearance,
-            -_lenght - 10,
+            -_length - 10,
         ])
         cube([
             _dia ,
             _dia ,
-            _lenght + 10
+            _length + 10
         ]);
     }
 
@@ -894,7 +894,7 @@ module pin_wheel() {
         // + pin_head_height
         + _shank_length
         + frame_rotating_clearance
-        + pin_tail_lenght
+        + pin_tail_length
     );
     echo("screw length", _shaft_length);
 
@@ -915,7 +915,7 @@ module pin_wheel_only() {
         // + pin_head_height
         + _shank_length
         + frame_rotating_clearance
-        + pin_tail_lenght
+        + pin_tail_length
     );
     echo("screw length", _shaft_length);
 
@@ -938,7 +938,7 @@ module pin_spur_bevel() {
         // + pin_head_height
         + _shank_length
         + frame_rotating_clearance
-        + pin_tail_lenght
+        + pin_tail_length
     );
     echo("screw length", _shaft_length);
 
@@ -959,7 +959,7 @@ module pin_spur() {
         // + pin_head_height
         + _shank_length
         + frame_rotating_clearance
-        + pin_tail_lenght
+        + pin_tail_length
     );
     echo("screw length", _shaft_length);
 
@@ -1001,7 +1001,7 @@ module _motor_box() {
     }
 }
 
-module _ardunio_uno_holes(length, diameter=3.0) {
+module _arduino_uno_holes(length, diameter=3.0) {
     // https://cdn-shop.adafruit.com/datasheets/arduino_hole_dimensions.pdf
 
     translate([0, 0, 0])
@@ -1120,7 +1120,7 @@ module frame() {
             // Arduino screw holes
             rotate([0, 180, 0])
             translate([-52.1, -80, -10])
-            _ardunio_uno_holes(length = frame_thickness * 2, diameter = 3.0 - 0.1);
+            _arduino_uno_holes(length = frame_thickness * 2, diameter = 3.0 - 0.1);
 
             // Arduino label
             translate([0, -35, frame_thickness - deboss_depth])
@@ -1181,7 +1181,7 @@ module arduino_standoffs(){
     translate([0, 0, 0])
     cylinder(d = arduino_standoffs_diameter, h = arduino_standoffs_height);
 
-    _ardunio_uno_holes();
+    _arduino_uno_holes();
     //need to take off 0.02 of the arduino uno holes, and move the standoffs up/down 0.01
 
     }
@@ -1464,32 +1464,34 @@ module marble_tank() {
         union() {
         rotate([0, 10, 0])
         translate([0, 0, 10])
-// case
-        cube([
-        marble_diameter * 10 + marble_tolerance * 10 + marble_tank_thickness,
-        marble_diameter + marble_tolerance + marble_tank_thickness,
-        marble_diameter + marble_tolerance + marble_tank_thickness
-       ]);
 
-// shute
-      translate([marble_diameter * 9 + marble_tolerance * 9, 0, -marble_diameter -frame_thickness - 1.5])
+        // case
+        cube([
+            marble_diameter * 10 + marble_tolerance * 10 + marble_tank_thickness,
+            marble_diameter + marble_tolerance + marble_tank_thickness,
+            marble_diameter + marble_tolerance + marble_tank_thickness
+        ]);
+
+        // shute
+        translate([marble_diameter * 9 + marble_tolerance * 9, 0, -marble_diameter -frame_thickness - 1.5])
             cube([
-            marble_diameter + marble_tolerance + marble_tank_thickness,
-            marble_diameter + marble_tolerance + marble_tank_thickness,
-            frame_thickness
+                marble_diameter + marble_tolerance + marble_tank_thickness,
+                marble_diameter + marble_tolerance + marble_tank_thickness,
+                frame_thickness
             ]);
         }
         
-// hole in case
+        // hole in case
         rotate([0, 10, 0])
         translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
         cube([
-        marble_diameter * 10 + marble_tolerance * 10,
-        marble_diameter + marble_tolerance,
-        marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
+            marble_diameter * 10 + marble_tolerance * 10,
+            marble_diameter + marble_tolerance,
+            marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
         ]);
 
-// hole in shute
+        // hole in chute
+
         // translate([
         //     marble_tank_thickness / 2 + marble_diameter * 9 + marble_tank_thickness * 9,
         //     marble_tank_thickness / 2,
@@ -1501,36 +1503,36 @@ module marble_tank() {
             -marble_diameter * 2.5 - marble_diameter
         ])
         cube([
-        marble_diameter + marble_tolerance,
-        marble_diameter + marble_tolerance,
-        marble_diameter + marble_diameter / 2 + marble_tolerance + 40
+            marble_diameter + marble_tolerance,
+            marble_diameter + marble_tolerance,
+            marble_diameter + marble_diameter / 2 + marble_tolerance + 40
         ]);
 
     }
 
-// plate with holes for screwing on
+    // plate with holes for screwing on
     translate([0, 0, -marble_diameter - marble_tolerance])
-        cube([
+    cube([
         marble_diameter * 9 + marble_tolerance * 9,
         marble_diameter + marble_tolerance + marble_tank_thickness,
         1
     ]);
 
-// support for the back of the tank
-difference() {
-    translate([5, 0, -16])
+    // support for the back of the tank
+    difference() {
+        translate([5, 0, -16])
         cube([
-        marble_diameter + marble_tolerance + marble_tank_thickness,
-        marble_diameter + marble_tolerance + marble_tank_thickness,
-        26
+            marble_diameter + marble_tolerance + marble_tank_thickness,
+            marble_diameter + marble_tolerance + marble_tank_thickness,
+            26
         ]);
 
         rotate([0, 10, 0])
         translate([marble_tank_thickness / 2, marble_tank_thickness / 2, 0.1 + 10])
         cube([
-        marble_diameter * 10 + marble_tolerance * 10,
-        marble_diameter + marble_tolerance,
-        marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
+            marble_diameter * 10 + marble_tolerance * 10,
+            marble_diameter + marble_tolerance,
+            marble_diameter + marble_tolerance + marble_tank_thickness + 0.01
         ]);
 
     }
