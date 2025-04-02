@@ -265,7 +265,7 @@ echo ("hello world !!!");
 
 // assembly_view(exploded = 0);
 
-frame();
+seeding_gear();
 
 
 module seeding_wheel() {
@@ -371,7 +371,7 @@ module seeding_gear() {
     // be at least 11mm above gear bottom.
     // Actually, just make the receiving holes threaded!
 
-    _serial = "0116-02B";
+    _serial = "0116-02C";
     _nut_top = 8;  // above bottom of gear
     _above_nut = 8;
 
@@ -404,11 +404,16 @@ module seeding_gear() {
                 center=true
             );
 
+            // standoff bases
             for (i = [0 : mounting_hole_count]){
                 rotate([0, 0, (i + 0.5) * 360 / mounting_hole_count])
-                translate([seeding_radius - mounting_hole_inset, 0, 0]) {
+                translate([
+                    seeding_radius - mounting_hole_inset,
+                    0,
+                    -seeding_gear_thickness / 2
+                ]) {
                     cylinder(
-                        h = _nut_top + _above_nut,
+                        h = _nut_top + _above_nut + seeding_gear_thickness / 2,
                         d = m3_nut_diameter_slip_fit + 3
                     );
                 }
@@ -423,25 +428,28 @@ module seeding_gear() {
         translate([0, 0, _nut_top + _above_nut])
         // _seeding_wheel_mounting_holes(d = mounting_hardware_diameter - 0.2);
         for (i = [0 : mounting_hole_count]){
-                rotate([0, 0, (i + 0.5) * 360 / mounting_hole_count])
-                translate([seeding_radius - mounting_hole_inset, 0, 0]) {
-                    // cylinder(
-                    //     h = _nut_top + _above_nut,
-                    //     d = m3_nut_diameter_slip_fit + 3
-                    // );
-                    threaded_rod(
-                        d = 3,
-                        l = _nut_top + _above_nut,
-                        // M3 course pitch
-                        // https://fullerfasteners.com/tech/basic-metric-thread-chart-m1-m100-2/
-                        pitch = 0.5,
-                        internal = true,
-                        bevel = true
-                        // teardrop=true,
-                        // orient=FWD
-                    );
-                }
+            rotate([0, 0, (i + 0.5) * 360 / mounting_hole_count])
+            translate([
+                    seeding_radius - mounting_hole_inset,
+                    0,
+                    // _nut_top + _above_nut + seeding_gear_thickness,
+                    seeding_gear_thickness / 2,
+                ]) {
+                threaded_rod(
+                    d = 3,
+                    l = _nut_top + _above_nut + seeding_gear_thickness / 2,
+                    // M3 course pitch
+                    // https://fullerfasteners.com/tech/basic-metric-thread-chart-m1-m100-2/
+                    pitch = 0.5,
+                    internal = true,
+                    bevel = true,
+                    // teardrop=true,
+                    // orient=FWD
+                    anchor = TOP
+                );
             }
+        }
+        echo("seeding gear standoff height", (_nut_top + _above_nut + seeding_gear_thickness / 2));
 
         // serial
         translate([
@@ -1276,13 +1284,14 @@ module frame() {
 }
 
 module arduino_standoffs() {
+    _serial = "0116-13A";
     color("orchid")
     difference() {
         translate([0, 0, 10])
         cylinder(d = m3_hardware + 0.2 + arduino_standoffs_thickness, h = arduino_standoffs_height);
 
         translate([0, 0, 9.99])
-        #cylinder(d = 3.2, h = arduino_standoffs_height + 0.02);
+        cylinder(d = 3.2, h = arduino_standoffs_height + 0.02);
     }
 }
 
