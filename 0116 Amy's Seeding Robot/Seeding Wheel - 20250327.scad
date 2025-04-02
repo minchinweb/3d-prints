@@ -585,11 +585,7 @@ module exit_tube() {
 }
 
 module track_plate() {
-    // TO-DO: mounting to frame (so that it doesn't move)
-    // TO-DO: separate exit tunnel from track plate so that it screws together
-    //          (easier printing)
-
-    _serial = "0116-03B";
+    _serial = "0116-03C";
 
     difference() {
         union() {
@@ -656,8 +652,9 @@ module track_plate() {
             }
 
             // marble stop
-            difference() {
-                translate([seeding_radius - 1/2 * marble_hole_diameter - 2, -marble_hole_diameter - 1, 0])
+            #difference() {
+                
+                translate([seeding_radius - 1/2 * marble_hole_diameter - 3, marble_hole_diameter / 2 - 7, 0])
                 cube([marble_hole_diameter + 2, marble_hole_diameter + 1, track_plate_height]);
 
                 // hole for the marble to drop out
@@ -1075,7 +1072,7 @@ module _eyebolt_holes() {
 }
 
 module frame() {
-    // TO-DO: cut hole to drop marble??
+    // TO-DO: 
     _serial = "0116-07A";
     frame_width = _y08 - _y01;
     _frame_wheel_drop = _z11 -_z13;
@@ -1129,7 +1126,7 @@ module frame() {
         translate([frame_thickness / 2, frame_thickness * 2, -0.01])
         cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
-        translate([frame_thickness / 2, frame_width - frame_thickness * 2, -0.01])
+        #translate([frame_thickness / 2, frame_width - frame_thickness * 2, -0.01])
         cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
         // holes to mount eyebold on the front
@@ -1537,7 +1534,7 @@ module _track_plate_to_frame_holes() {
 }
 
 module marble_tank() {
-    //TO-DO : add screw holes
+    _serial = "0116-12A";
     marble_count = 11;  // one extra spot
     _ramp_angle = 10;
     _inside_tank_width = marble_diameter + marble_tolerance;
@@ -1570,18 +1567,26 @@ module marble_tank() {
 
             // support
             translate([15, -50, 16]) {
-                rotate([0, 0, 20])
-                translate([0, -20, 0])
+                rotate([0, 0, 339])
+                translate([-seeding_gear_diameter / 2 + frame_thickness * 2 + 0.6, 0, 0])
                 cube([frame_thickness, 105, 2]);
 
                 translate([96.4, 0, 0])
-                rotate([0, 0, 20]) {
-                    translate([0, 13, 0])
-                    cube([frame_thickness, 105, 2]);
+                rotate([0, 0, 339]) {
+                translate([
+                    -seeding_gear_diameter / 3 - frame_thickness / 2 + frame_thickness / 10 + 0.4,
+                    -seeding_gear_diameter / 4, 
+                    0
+                ])
+                cube([frame_thickness, 105, 2]);
 
-                    // upright from support to tank
-                    translate([0, 40, 0])
-                    cube([frame_thickness, _tank_width, 30]);
+                // upright from support to tank
+                translate([
+                    -seeding_gear_diameter / 3 -frame_thickness / 2 + frame_thickness / 10 + 0.4,
+                    30.5,
+                    0
+                ])
+                cube([frame_thickness, _tank_width, 30]);
                 }
             }
         }
@@ -1613,13 +1618,94 @@ module marble_tank() {
 
         // mounting holes to frame
         translate([seeding_radius, 0, 25])
-        rotate([0, 0, 20])
+        rotate([0, 0, 159])
         _track_plate_to_frame_holes();
+
+        // serial number
+        translate([
+            marble_diameter * 9.7,
+            -marble_tank_wall_thickness - marble_diameter / 2 - marble_tolerance / 2 + deboss_depth,
+            marble_diameter * 3 - deboss_depth
+        ])
+        rotate([90, -10, 0])
+        linear_extrude(deboss_depth + 0.01)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "baseline"
+        );
     }
 }
 
+module eye_hook() {
+    _serial = "0116-13A";
+    _eye_hook_hole_diameter = 25;
+    _eye_hook_distance_to_front_bar = 80;
+    _eye_hook_back_bar_lenght = 120;
+    _eye_hook_front_bar_width = 80;
+    _eye_hook_front_bar_lenght = frame_thickness * 3;
+
+
+    // the hole we need to get around, or an approximation of it
+    difference() {
+        color("purple")
+        translate([exit_pipe_outer_diameter / 2 + frame_thickness * 1 + 1, 0, -frame_thickness]) {
+        cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + frame_thickness * 0);
+
+        // translate([exit_pipe_outer_diameter / 2 + frame_thickness * 2 + 1, 0, -0.01 -frame_thickness])
+        cylinder(h = frame_thickness * 2 + 0.02, d = exit_pipe_inner_diameter);
+        }
+    }
+
+
+    difference() {
+        union() {
+            // back bar
+            translate([0, -60, 0])
+            cube([frame_thickness, 120, frame_thickness]);
+
+            // front bar
+            translate([45, -_eye_hook_front_bar_width / 2, 0])  
+            cube([_eye_hook_front_bar_lenght, _eye_hook_front_bar_width, frame_thickness]);
+
+            // left side bar
+            translate([frame_thickness, -60, 0])
+            rotate([0, 0, 15.3])
+            cube([75, frame_thickness, frame_thickness]);
+
+            // right side bar
+            #translate([frame_thickness * 3 + 60 , _eye_hook_front_bar_width / 2, 0])
+            rotate([0, 0, 180 - 15.3])
+            cube([76, frame_thickness, frame_thickness]);
+        }
+
+        translate([45 + frame_thickness / 10, 0, -0.01])
+        #cylinder(h = frame_thickness + 0.02, d = _eye_hook_hole_diameter);
+    }
+
+
+
+    // serial number
+        // translate([
+        //     marble_diameter * 9.7,
+        //     -marble_tank_wall_thickness - marble_diameter / 2 - marble_tolerance / 2 + deboss_depth,
+        //     marble_diameter * 3 - deboss_depth
+        // ])
+        // rotate([0, 0, 0])
+        // linear_extrude(deboss_depth + 0.01)
+        // text(
+        //     _serial,
+        //     size = font_size,
+        //     font = font_face,
+        //     halign = "center",
+        //     valign = "baseline"
+        // );
+}
+
 module assembly_view(exploded = 0) {
-    //TO-DO: add marble tank
+    //TO-DO:
     _z_explode = 15 * exploded;
 
     color("salmon")
