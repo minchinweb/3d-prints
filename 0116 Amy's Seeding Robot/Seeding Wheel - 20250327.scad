@@ -261,10 +261,11 @@ $fn=90;
 
 echo ("hello world !!!");
 
-// assembly_view(exploded = 1);
+// assembly_view(exploded = 0);
+// _frame_wheel_support(frame_wheel_drop = frame_wheel_drop);
 
-eye_hook();
-// frame();
+// eye_hook();
+frame();
 
 
 module seeding_wheel() {
@@ -581,7 +582,7 @@ module exit_tube() {
         cylinder(h = exit_tube_plate_thickness + 2.01, d = exit_pipe_inner_diameter);
 
         // serial
-        #translate([
+        translate([
             seeding_radius + exit_pipe_outer_diameter / 2,
             0,
             -deboss_depth
@@ -1010,10 +1011,10 @@ module pin_spur() {
 
 module _frame_wheel_support(frame_wheel_drop) {
     difference() {
-        translate([-frame_thickness / 2, -frame_thickness, -frame_wheel_drop])
-        cube([frame_thickness, frame_thickness, frame_wheel_drop]);
+        translate([-frame_thickness / 2, -frame_thickness, -frame_wheel_drop-frame_thickness])
+        cube([frame_thickness, frame_thickness, frame_wheel_drop + frame_thickness]);
 
-        translate([0, -0.01 + -frame_thickness, -frame_wheel_drop / 2])
+        translate([0, -0.01 + -frame_thickness, -frame_wheel_drop])
         rotate([270, 0, 0])
         cylinder(d =  m3_hardware, h = frame_thickness + 0.02);
     }
@@ -1087,7 +1088,7 @@ module _eyebolt_holes() {
 }
 
 module frame() {
-    _serial = "0116-07A";
+    _serial = "0116-07B";
     frame_width = _y08 - _y01;
     _frame_wheel_drop = _z11 -_z13;
 
@@ -1140,7 +1141,7 @@ module frame() {
         translate([frame_thickness / 2, frame_thickness * 2, -0.01])
         cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
-        #translate([frame_thickness / 2, frame_width - frame_thickness * 2, -0.01])
+        translate([frame_thickness / 2, frame_width - frame_thickness * 2, -0.01])
         cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
         // holes to mount eyebold on the front
@@ -1229,23 +1230,23 @@ module frame() {
         // motor box (1/2)
         translate([_x07 - _x08, _y08, 0]) {
             _frame_wheel_support(_frame_wheel_drop);
-            translate([0, -frame_thickness - motor_length - motor_box_clearance, -_frame_wheel_drop/2])
+            translate([0, -frame_thickness - motor_length - motor_box_clearance, -_frame_wheel_drop])
             _motor_box();
 
             translate([
                 -frame_thickness / 2,
                 -1 * (motor_length + motor_box_clearance + frame_thickness),
-                -frame_thickness + 1.8
+                -_frame_wheel_drop + 4.6
             ])
-            cube([frame_thickness, motor_length + motor_box_clearance, frame_thickness]);
+            cube([frame_thickness, motor_length + motor_box_clearance, _frame_wheel_drop]);
 
             // print supports
             translate([
                 motor_width / 2 + motor_box_thickness + motor_box_clearance / 2,
                 -1 * (motor_length + motor_box_clearance + frame_thickness),
-                -3.8
+                -13
             ]) {
-                rotate([0, 260, 0])
+                rotate([0, 235, 0])
                 cube([frame_thickness * 1.5, motor_length + motor_box_clearance, 1]);
 
                 translate([
@@ -1262,23 +1263,23 @@ module frame() {
         translate([_x07 - _x08, _y01 + frame_thickness, 0]) {
             _frame_wheel_support(_frame_wheel_drop);
 
-            translate([0, 0, -_frame_wheel_drop/2])
+            translate([0, 0, -_frame_wheel_drop])
             _motor_box();
 
             translate([
                 -frame_thickness / 2,
                 0,
-                -frame_thickness + 1.8
+                -_frame_wheel_drop + 4.6
             ])
-            cube([frame_thickness, motor_length + motor_box_clearance, frame_thickness]);
+            cube([frame_thickness, motor_length + motor_box_clearance, _frame_wheel_drop]);
 
             // print supports
             translate([
                 motor_width / 2 + motor_box_thickness + motor_box_clearance / 2,
                 0,
-                -3.8
+                -13
             ]) {
-                rotate([0, 260, 0])
+                rotate([0, 235, 0])
                 cube([frame_thickness * 1.5, motor_length + motor_box_clearance, 1]);
 
                 translate([
@@ -1645,7 +1646,7 @@ module eye_hook() {
 
         // exit tube
         translate([_x02 - _x03 - frame_thickness, _y05 - _y05, 0])
-        #cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + 2);
+        cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + 2);
 
 
         // pass space for winch hook
@@ -1670,7 +1671,7 @@ module eye_hook() {
 
         // end of design string
         // #translate([frame_thickness / 2, -37.5, frame_thickness - deboss_depth])
-        #rotate([90, 0, 22.5])
+        rotate([90, 0, 22.5])
         translate([0, frame_thickness / 2, 42])
         linear_extrude(deboss_depth + 0.01)
         text(
