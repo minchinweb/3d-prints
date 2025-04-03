@@ -263,9 +263,9 @@ $fn=90;
 
 echo ("hello world !!!");
 
-// assembly_view(exploded = 0);
+// assembly_view(exploded = 1);
 
-seeding_gear();
+eye_hook();
 
 
 module seeding_wheel() {
@@ -500,29 +500,38 @@ module _exit_tube_mounting_holes() {
         cylinder(d = m3_wafer_head_diameter + 0.3, h = 10);
     }
 
-    _angles = [72, 124, 302];
+    _angles = [65, 240, 295];
 
     for (i = [0 : len(_angles) - 1]) {
         rotate([0, 0, _angles[i]])
-        translate([(exit_pipe_outer_diameter + 4) / 2, 0, 0])
+        translate([(exit_pipe_outer_diameter + 8) / 2, 0, 0])
         _a_hole();
     }
 }
 
 module exit_tube() {
-    _serial = "0116-08A";
+    _serial = "0116-14A";
 
     // TO-DO: mirror connection holes to match track plate
 
     // drop curve
-    translate([seeding_radius, 0, 0])
-    rotate([90, 180, 0])
-    translate([-exit_pipe_curve_radius, 0, 0])
-    rotate_extrude(angle=45)
-    translate([exit_pipe_curve_radius, 0, 0])
-    difference(){
-        circle(d = exit_pipe_outer_diameter);
-        circle(d = exit_pipe_inner_diameter);
+    difference() {
+        translate([seeding_radius, 0, 0])
+        rotate([90, 180, 0])
+        translate([-exit_pipe_curve_radius, 0, 0])
+        rotate_extrude(angle=45)
+        translate([exit_pipe_curve_radius, 0, 0])
+        difference(){
+            circle(d = exit_pipe_outer_diameter);
+            circle(d = exit_pipe_inner_diameter);
+        }
+
+        // clear curve of rotating seeding wheel and gear
+        translate ([0, 0, -exit_tube_plate_thickness * 6 - 0.01])
+        cylinder (
+            h = exit_tube_plate_thickness * 6 + 0.02,
+            r = track_plate_inner_diameter
+        );
     }
 
     translate([seeding_radius + 7.5, 0, -18.0])
@@ -548,14 +557,22 @@ module exit_tube() {
     difference() {
         translate([
             exit_pipe_outer_diameter + 10,
-            -exit_pipe_outer_diameter / 1.4,
+            -exit_pipe_outer_diameter * 1.6 / 2,
             -exit_tube_plate_thickness
         ])
         cube([
             exit_pipe_outer_diameter * 1.3, 
-            exit_pipe_outer_diameter * 1.4,
+            exit_pipe_outer_diameter * 1.6,
             exit_tube_plate_thickness
         ]);
+
+        // clear curve of rotating seeding wheel and gear
+        translate ([0, 0, -exit_tube_plate_thickness - 0.01])
+        cylinder (
+            h = exit_tube_plate_thickness + 0.02,
+            r = track_plate_inner_diameter
+        );
+
 
         // the holes in the plate for mounting to track plate (above)
         translate([seeding_radius, 0, 5])
@@ -600,8 +617,9 @@ module track_plate() {
                     // bump out for extra support around exit tube mounting and frame
                     // mounts
                     _bump_angles = [
-                        12.5,
-                        38,
+                        15.2,  // exit plate mounting
+                        345,
+                        38,  // to frame
                         65,
                         115,
                         141,
@@ -636,7 +654,7 @@ module track_plate() {
                 // serial
                 rotate([0, 0, 45])
                 translate([
-                    seeding_radius,
+                    seeding_radius + 4,
                     0,
                     deboss_depth,
                 ])
@@ -652,7 +670,7 @@ module track_plate() {
             }
 
             // marble stop
-            #difference() {
+            difference() {
                 
                 translate([seeding_radius - 1/2 * marble_hole_diameter - 3, marble_hole_diameter / 2 - 7, 0])
                 cube([marble_hole_diameter + 2, marble_hole_diameter + 1, track_plate_height]);
@@ -1454,63 +1472,6 @@ module upper_frame() {
     }
 }
 
-module upper_frame_2() {
-    //the frame for supporting our seeding marbles
-    // translate([0, 0, _z05 - _z08 - frame_thickness * 2])
-    // upper_frame();
-
-     // taking out the connection holes to upper frame 2, didn't work, maybe come back later
-        // translate([
-        //     _support_x[i] + frame_thickness / 2,
-        //     _support_y[0] + frame_thickness * 2,
-        //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-        //     ])
-        // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-        // translate([
-        //     _support_x[i] + frame_thickness / 2,
-        //     _support_y[1] - frame_thickness * 1,
-        //     -frame_height - 0.01 + _z05 - _z08 - frame_thickness * 2
-        //     ])
-        // #cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-
-
-            //it was an idea to make the holes work, but i gave up, so ignore
-// difference() {
-//     upper_frame();
-
-
-        // translate([
-        //     frame_thickness / 2,
-        //     frame_thickness * 2,
-        //     -0.01
-        // ])
-        // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-        // translate([
-        //     frame_thickness / 2,
-        //     -_y01 + _y08 - frame_thickness - frame_thickness * 1,
-        //     -0.01
-        // ])
-        // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-        // #translate([
-        //     -frame_thickness * 2 - seeding_wheel_diameter / 2 - frame_thickness,
-        //     frame_thickness * 2,
-        //     -0.01
-        // ])
-        // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
-
-        // #translate([
-        //     -frame_thickness * 2 - seeding_wheel_diameter / 2 - frame_thickness,
-        //     -_y01 + _y08 - frame_thickness - frame_thickness * 1,
-        //     -12
-        // ])
-        // cylinder(d = m3_hardware - 0.1, h = frame_thickness * 7);
-    // }
-}
-
 _track_plate_mounting_angles = [38, 52, 128, 142, 219, 245, 295, 322];
 module _track_plate_to_frame_holes() {
     // assumed M3 hardware
@@ -1640,24 +1601,24 @@ module marble_tank() {
 }
 
 module eye_hook() {
-    _serial = "0116-13A";
+    _serial = "0116-15A";
     _eye_hook_hole_diameter = 25;
     _eye_hook_distance_to_front_bar = 80;
-    _eye_hook_back_bar_lenght = 120;
-    _eye_hook_front_bar_width = 80;
-    _eye_hook_front_bar_lenght = frame_thickness * 3;
+    _eye_hook_back_bar_length = 120;
+    _eye_hook_front_bar_width = 40;
+    _eye_hook_front_bar_depth = frame_thickness * 3;
 
 
-    // the hole we need to get around, or an approximation of it
-    difference() {
-        color("purple")
-        translate([exit_pipe_outer_diameter / 2 + frame_thickness * 1 + 1, 0, -frame_thickness]) {
-        cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + frame_thickness * 0);
+    // // the hole we need to get around, or an approximation of it
+    // color("purple")
+    // translate([exit_pipe_outer_diameter / 2 + frame_thickness * 1 + 1, 0, -frame_thickness]) {
+    //     difference() {
+    //         cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + frame_thickness * 0);
 
-        // translate([exit_pipe_outer_diameter / 2 + frame_thickness * 2 + 1, 0, -0.01 -frame_thickness])
-        cylinder(h = frame_thickness * 2 + 0.02, d = exit_pipe_inner_diameter);
-        }
-    }
+    //         translate([0, 0, -0.01])
+    //         cylinder(h = frame_thickness * 2 + 0.02, d = exit_pipe_inner_diameter);
+    //     }
+    // }
 
 
     difference() {
@@ -1668,40 +1629,60 @@ module eye_hook() {
 
             // front bar
             translate([45, -_eye_hook_front_bar_width / 2, 0])  
-            cube([_eye_hook_front_bar_lenght, _eye_hook_front_bar_width, frame_thickness]);
+            cube([_eye_hook_front_bar_depth, _eye_hook_front_bar_width, frame_thickness]);
 
             // left side bar
-            translate([frame_thickness, -60, 0])
-            rotate([0, 0, 15.3])
-            cube([75, frame_thickness, frame_thickness]);
+            translate([0, -_eye_hook_front_bar_width / 2, 0])
+            cube([45, frame_thickness, frame_thickness]);
 
-            // right side bar
-            #translate([frame_thickness * 3 + 60 , _eye_hook_front_bar_width / 2, 0])
-            rotate([0, 0, 180 - 15.3])
-            cube([76, frame_thickness, frame_thickness]);
+            translate([_eye_hook_front_bar_depth + 45, -_eye_hook_front_bar_width / 2, frame_thickness])
+            rotate([0, 180, 22.5])
+            cube([65, frame_thickness, frame_thickness]);
+
+            // left side bar
+            translate([0, _eye_hook_front_bar_width / 2 - frame_thickness, 0])
+            cube([45, frame_thickness, frame_thickness]);
+
+            translate([_eye_hook_front_bar_depth + 45, _eye_hook_front_bar_width / 2, 0])
+            rotate([0, 0, 180 - 22.5])
+            cube([65, frame_thickness, frame_thickness]);
         }
 
+        // pass space for winch hook
         translate([45 + frame_thickness / 10, 0, -0.01])
-        #cylinder(h = frame_thickness + 0.02, d = _eye_hook_hole_diameter);
+        cylinder(h = frame_thickness + 0.02, d = _eye_hook_hole_diameter);
+
+        // mounting holes, to frame
+        translate([frame_thickness + 0.01, 0, frame_thickness / 2])
+        _eyebolt_holes();
+
+        // serial number
+        translate([frame_thickness / 2, -37.5, frame_thickness - deboss_depth])
+        rotate([0, 0, 90])
+        linear_extrude(deboss_depth + 0.01)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "center"
+        );
+
+        // end of design string
+        // #translate([frame_thickness / 2, -37.5, frame_thickness - deboss_depth])
+        #rotate([90, 0, 22.5])
+        translate([0, frame_thickness / 2, 42])
+        linear_extrude(deboss_depth + 0.01)
+        text(
+            "2025",
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "center"
+        );
+
+
     }
-
-
-
-    // serial number
-        // translate([
-        //     marble_diameter * 9.7,
-        //     -marble_tank_wall_thickness - marble_diameter / 2 - marble_tolerance / 2 + deboss_depth,
-        //     marble_diameter * 3 - deboss_depth
-        // ])
-        // rotate([0, 0, 0])
-        // linear_extrude(deboss_depth + 0.01)
-        // text(
-        //     _serial,
-        //     size = font_size,
-        //     font = font_face,
-        //     halign = "center",
-        //     valign = "baseline"
-        // );
 }
 
 module assembly_view(exploded = 0) {
