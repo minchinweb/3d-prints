@@ -153,7 +153,7 @@ arduino_standoffs_thickness = 1;
 // [ Drafting Lines ]
 
 // front of robot
-// center of trackplate drop hole
+// center of exit tube (bottom) marble drop hole
 _x02 = 63.4;
 // front support for seeding wheel
 _x03 = seeding_radius - frame_thickness;
@@ -192,8 +192,6 @@ _y01 = _y02 - frame_thickness - frame_rotating_clearance;
 _z03 = track_plate_height + upper_track_z_tolerance;
 // seeding wheel top
 _z02 = _z03 + seeding_wheel_height;
-
-
 
 // track plate bottom
 _z05 = 0;
@@ -266,6 +264,7 @@ echo ("hello world !!!");
 // assembly_view(exploded = 1);
 
 eye_hook();
+// frame();
 
 
 module seeding_wheel() {
@@ -511,8 +510,6 @@ module _exit_tube_mounting_holes() {
 
 module exit_tube() {
     _serial = "0116-14A";
-
-    // TO-DO: mirror connection holes to match track plate
 
     // drop curve
     difference() {
@@ -1090,7 +1087,6 @@ module _eyebolt_holes() {
 }
 
 module frame() {
-    // TO-DO: 
     _serial = "0116-07A";
     frame_width = _y08 - _y01;
     _frame_wheel_drop = _z11 -_z13;
@@ -1180,7 +1176,6 @@ module frame() {
     frame_back_length = _x03 - _x08;
     y_back_offsets = [
         _y08 - frame_thickness,
-        // _y05 - frame_thickness * 3/2,
         mean([_y08, _y01]),  // centerline
         _y01
     ];
@@ -1601,7 +1596,7 @@ module marble_tank() {
 }
 
 module eye_hook() {
-    _serial = "0116-15A";
+    _serial = "0116-15B";
     _eye_hook_hole_diameter = 25;
     _eye_hook_distance_to_front_bar = 80;
     _eye_hook_back_bar_length = 120;
@@ -1647,6 +1642,11 @@ module eye_hook() {
             rotate([0, 0, 180 - 22.5])
             cube([65, frame_thickness, frame_thickness]);
         }
+
+        // exit tube
+        translate([_x02 - _x03 - frame_thickness, _y05 - _y05, 0])
+        #cylinder(h = frame_thickness * 2, d = exit_pipe_outer_diameter + 2);
+
 
         // pass space for winch hook
         translate([45 + frame_thickness / 10, 0, -0.01])
