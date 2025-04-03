@@ -262,10 +262,8 @@ $fn=90;
 echo ("hello world !!!");
 
 // assembly_view(exploded = 0);
-// _frame_wheel_support(frame_wheel_drop = frame_wheel_drop);
 
-// eye_hook();
-frame();
+pin_wheel();
 
 
 module seeding_wheel() {
@@ -923,7 +921,7 @@ module _pin_shaft(shank_length, shaft_length) {
 
 module pin_wheel() {
     // to attach the odometer wheel to the bevel transfer gear
-    _serial = "0116-06K";
+    _serial = "0116-06L";
 
     _shank_length = (
         odometer_wheel_hub_thickness
@@ -931,6 +929,7 @@ module pin_wheel() {
         + frame_thickness
         + frame_rotating_clearance
         + transfer_bevel_gear_thickness
+        + 2  // imperfect design
     );
     _shaft_length = (
         0
@@ -938,6 +937,7 @@ module pin_wheel() {
         + _shank_length
         + frame_rotating_clearance
         + pin_tail_length
+        + 2  // imperfect design
     );
     echo("screw length", _shaft_length);
 
