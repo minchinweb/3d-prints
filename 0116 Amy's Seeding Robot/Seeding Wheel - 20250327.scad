@@ -263,8 +263,11 @@ echo ("hello world !!!");
 
 // assembly_view(exploded = 0);
 
-pin_wheel();
-
+// pin_wheel();
+pin_wheel_long();
+// frame();
+// odometer_wheel();
+// bevel_gear();
 
 module seeding_wheel() {
     _serial = "0116-01B";
@@ -877,7 +880,7 @@ module _d_shaft(shaft_length, clearance = 0) {
     }
 }
 
-module _pin_shaft(shank_length, shaft_length) {
+module _pin_shaft(shank_length, shaft_length, flat_head = 0) {
     // base model for making all pins
     // D-shaft to allow gears to turn together
 
@@ -885,12 +888,12 @@ module _pin_shaft(shank_length, shaft_length) {
     // nozzle) just aren't there to get any better
 
     _dia = 3;  // screw_shaft_diameter
-    _length = 25;
+    _length = 75;
 
     difference() {
         union() {
             screw(
-                spec = "M3",
+                spec = "M3 + 0.3",
                 head = "socket",
                 drive = "hex",
                 length = shaft_length,
@@ -916,6 +919,19 @@ module _pin_shaft(shank_length, shaft_length) {
             _dia ,
             _length + 10
         ]);
+
+            if(flat_head == 1){
+        translate([
+            -_dia,
+            -_dia / 2 + odometer_wheel_shaft_d_height + 0 - 0 * pin_clearance,
+            -_length,
+        ])
+        cube([
+            _dia * 2,
+            _dia,
+            _length + 10
+        ]);
+            }
     }
 }
 
@@ -942,6 +958,35 @@ module pin_wheel() {
     echo("screw length", _shaft_length);
 
     _pin_shaft(shank_length=_shank_length, shaft_length=_shaft_length);
+}
+
+module pin_wheel_long() {
+    // to attach the odometer wheel to the bevel transfer gear
+    _serial = "0116-16C";
+
+    _shank_length = (
+        odometer_wheel_hub_thickness
+        + frame_rotating_clearance
+        + frame_thickness
+        + frame_rotating_clearance
+        + transfer_bevel_gear_thickness
+        // + 2  // imperfect design
+    );
+    _shaft_length = (
+        0
+        // + pin_head_height
+        + odometer_wheel_hub_thickness
+        + frame_rotating_clearance
+        + frame_thickness
+        + transfer_spur_gear_diameter
+        + frame_thickness * 1.5
+        + frame_rotating_clearance
+        + pin_tail_length
+        + 2  // imperfect design
+    );
+    echo("screw length", _shaft_length);
+
+    _pin_shaft(shank_length=_shank_length, shaft_length=_shaft_length, flat_head = 1);
 }
 
 module pin_wheel_only() {
@@ -1012,7 +1057,7 @@ module pin_spur() {
 module _frame_wheel_support(frame_wheel_drop) {
     difference() {
         translate([-frame_thickness / 2, -frame_thickness, -frame_wheel_drop-frame_thickness])
-        cube([frame_thickness, frame_thickness, frame_wheel_drop + frame_thickness]);
+        cube([frame_thickness, frame_thickness, frame_wheel_drop + frame_thickness * 2 - 0.01]);
 
         translate([0, -0.01 + -frame_thickness, -frame_wheel_drop])
         rotate([270, 0, 0])
@@ -1088,7 +1133,7 @@ module _eyebolt_holes() {
 }
 
 module frame() {
-    _serial = "0116-07B";
+    _serial = "0116-07C";
     frame_width = _y08 - _y01;
     _frame_wheel_drop = _z11 -_z13;
 
@@ -1113,10 +1158,14 @@ module frame() {
         }
 
         // front wheel supports
-        translate([0, frame_thickness, 0])
+        translate([0, frame_thickness - frame_thickness / 1.5, 0])
         _frame_wheel_support(_frame_wheel_drop);
 
-        translate([0, frame_width, 0])
+        translate([0, frame_width + frame_thickness / 1.5, 0])
+        _frame_wheel_support(_frame_wheel_drop);
+
+        // inside wheel / axel support
+        translate([0, transfer_spur_gear_diameter + frame_thickness * 1.5, 0])
         _frame_wheel_support(_frame_wheel_drop);
     }
 
@@ -1144,7 +1193,7 @@ module frame() {
         translate([frame_thickness / 2, frame_width - frame_thickness * 2, -0.01])
         cylinder(d = m3_hardware - 0.1, h = frame_thickness * 2);
 
-        // holes to mount eyebold on the front
+        // holes to mount eye hook on the front
         translate([frame_thickness + 0.01, _y05 - _y01, frame_thickness / 2])
         _eyebolt_holes();
 
@@ -1201,8 +1250,8 @@ module frame() {
             }
 
             // Arduino screw holes
-            rotate([0, 180, 0])
-            translate([-52.1, -80, -10])
+            rotate([180, 180, 0])
+            translate([-52.1, 31, -1])
             _arduino_uno_holes(length = frame_thickness * 2, diameter = 3.0 - 0.1);
 
             // Arduino label
@@ -1210,7 +1259,7 @@ module frame() {
             rotate([0, 0, 90])
             linear_extrude(deboss_depth + 0.01)
             text(
-                "<-- as per client requirements -------v",
+                "    <-- as per client requirements -------v",
                 size = font_size,
                 font = font_face,
                 halign = "left",
@@ -1747,7 +1796,7 @@ module assembly_view(exploded = 0) {
     color("SeaGreen")
     translate([
         _x04,
-        _y07 + 2 * _z_explode,
+        _y07  + frame_thickness / 2.3 + 2 * _z_explode,
         _z12 - 4 * _z_explode
     ])
     rotate([90, 0 ,0])
@@ -1757,7 +1806,7 @@ module assembly_view(exploded = 0) {
     color("darkslategray")
     translate([
         _x04,
-        _y08 + 3 * _z_explode,
+        _y08 + frame_thickness / 1.5 + 3 * _z_explode,
         _z12 - 4 * _z_explode
     ])
     rotate([90, 0 ,0])
@@ -1795,7 +1844,7 @@ module assembly_view(exploded = 0) {
     color("SeaGreen")
     translate([
         _x04,
-        _y02 - 3 * _z_explode,
+        _y02 - frame_thickness / 2 - 3 * _z_explode,
         _z12 - 4 * _z_explode
     ])
     rotate([270, 0 ,0])
@@ -1805,7 +1854,7 @@ module assembly_view(exploded = 0) {
     color("darkslategray")
     translate([
         _x04,
-        _y01 - 4 * _z_explode,
+        _y01 - frame_thickness / 1.5 - 4 * _z_explode,
         _z12 - 4 * _z_explode
     ])
     rotate([270, 0 ,0])
