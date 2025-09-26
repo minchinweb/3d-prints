@@ -23,6 +23,12 @@
 // - interior block for screw to go into
 // - corner holes for magnets
 
+// Future possible changes
+//
+// - put M2.5 hole all the way through, so that you can screw across the
+//   baseplate
+// - stress release on magnet holes
+
 
 include <../libs/gridfinity_extended_openscad/modules/gridfinity_constants.scad>
 use <../libs/gridfinity_extended_openscad/modules/module_gridfinity_cup.scad>
@@ -48,7 +54,8 @@ nut_split_fit_width_corners = 5.55;
 // a M3 nut is nominally 2.15mm thick, mine are 2.32mm; include clearance here (so 2.45mm?)
 nut_split_fit_thickness = 2.05;
 screw_socket_head_diameter = 4.5;
-screw_socket_head_depth = 29.95;
+// set to 29.95 to go all the way across if base size > 2, set to 23.8 if base size == 1
+screw_socket_head_depth = 23.8;
 
 // how far above the bottom the center of the screw hole is
 screw_hole_height = 5.975;
@@ -779,6 +786,9 @@ difference() {
     }
 
     // magnet holes
+
+    // use MagnetAndScrewRecess() from
+    // gridfinity_extended_openscad/modules/modules_utility.scad, line 376
     if (magnets == true) {
         translate(v = [
             -1 * gf_xy_base / 2,
