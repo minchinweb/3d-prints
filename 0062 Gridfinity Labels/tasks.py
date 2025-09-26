@@ -16,13 +16,56 @@ LABELS = [
     # "{circle} {box(2.0)}\\n{magnet} 6x2",
 
     ## 0062D -- Dec 5, 2024
-    "{washer} {box(0.5)}\\nM2.5",  # M2.5x5.5x0.5
-    "{washer} {box(0.5)}\\nM3",    # M3x6x0.5
-    "{nut} {nut_profile}\\nM2.5",  # DIN934
-    "{nut} {nut_profile}\\nM3",    # DIN934
-    "{head(hex)} {bolt(6,countersunk)}\\nM3×6",  # DIN7991
-    "{head(hex)} {bolt(30,socket)}\\nM3×30",     # DIN912
-    "{head(hex)} {bolt(40,socket)}\\nM3×40",     # DIN912
+    # "{washer} {box(0.5)}\\nM2.5",  # M2.5x5.5x0.5
+    # "{washer} {box(0.5)}\\nM3",    # M3x6x0.5
+    # "{nut} {nut_profile}\\nM2.5",  # DIN934
+    # "{nut} {nut_profile}\\nM3",    # DIN934
+    # "{head(hex)} {bolt(6,countersunk)}\\nM3×6",  # DIN7991
+    # "{head(hex)} {bolt(30,socket)}\\nM3×30",     # DIN912
+    # "{head(hex)} {bolt(40,socket)}\\nM3×40",     # DIN912
+
+    ## 0062E -- March 1, 2025
+    # ## half width
+    # "{nut} {nut_profile}\\nM2",
+    # # "{washer} {box(0.5)}\\nM2.5",
+    # # "{washer} {box(0.5)}\\nM3",
+    # ## 1u wide
+    # "{head(hex)} {bolt(20,socket)}\\nM2×20",
+    # "{head(torx)} {bolt(20,countersunk)}\\nM2.5×20",
+    # "{head(cross)} {bolt(5,wafer)}\\nM3×5",
+    # "{head(cross)} {bolt(6,wafer)}\\nM3×6",
+    # "{head(cross)} {bolt(8,wafer)}\\nM3×8",
+    # "{head(torx)} {bolt(8,countersunk)}\\nM3×8",
+    # "{head(torx)} {bolt(10,countersunk)}\\nM3×10",
+    # "{head(cross)} {bolt(16,wafer)}\\nM3×16",
+    # "{head(hex)} {bolt(16,socket)}\\nM3×20",
+    # "{head(cross)} {bolt(25,pan)}\\nM3.5×25",
+    # "{nut} {nut_profile}\\nM3.5",
+    # "{head(cross)} {bolt(10,wafer)}\\nM4×10",
+    # "{head(cross)} {bolt(25,wafer)}\\nM4×25",
+    # ## 2u wide
+    # # "{head(hex)} {bolt(30,socket)}\\nM3×30",     # DIN912
+    # # "{head(hex)} {bolt(40,socket)}\\nM3×40",
+
+    # ## 0062F -- March 2, 2025
+    # "{nut} {nut_profile}\\nM2{|}{washer} {box(0.5)}\\nM2",
+    # "{nut} {nut_profile}\\nM2.5{|}{washer} {box(0.5)}\\nM2.5",
+    # "{nut} {nut_profile}\\nM3{|}{washer} {box(0.5)}\\nM3",
+
+    ## 0062G -- May 11, 2025
+    "{...}{nut} {nut_profile}{...}{...}{washer} {box(0.5)}{...}\\nM2",
+    "{...}{nut} {nut_profile}{...}{...}{washer} {box(0.5)}{...}\\nM2.5",
+    "{...}{nut} {nut_profile}{...}{...}{washer} {box(0.5)}{...}\\nM3",
+    "{square_nut}\\nM3",
+    "{...}{head(hex)} {bolt(4,countersunk)}{...}{...}{bolt(6,countersunk)}{...}\\n{...}M3×4{...}{...}×6{...}",
+    "{head(cross)} {bolt(5,wafer)}    {bolt(6,wafer)}\\n{...}M3×5{...}{...}×6{...}",
+    "{head(cross)} {bolt(12,wafer)}\\nM3×12",  # DIN912
+    "{head(hex)} {bolt(55,socket)}\\nM3×55",
+    "{washer} {box(0.8)}\\nM4",  # M4x9x0.8
+    "{nut} {nut_profile}\\nM4",  # DIN934
+    "{washer} {box(1.0)}\\nM5",  # M5x10x1
+    "{nut} {nut_profile}\\nM5",  # DIN934
+    "{head(hex)} {bolt(20,socket)}\\nM5×20",  # DIN912
 
 ]
 
@@ -52,7 +95,7 @@ OUTPUT = "labels.stl"
 def make_labels(ctx, vscode=False):
     all_labels = " ".join(f'"{label}"' for label in LABELS)
 
-    cmd = f"gflabel --base={BASE} --font={FONT} --font-size={FONT_SIZE}"
+    cmd = f"gflabel {BASE} --font={FONT} --font-size={FONT_SIZE}"
     cmd += f" --style={STYLE} --margin={MARGIN} {all_labels} -o {OUTPUT}"
 
     if vscode:
