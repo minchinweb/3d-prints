@@ -1,0 +1,19 @@
+Project: 0111AD.hfp
+Print at 100% infill with a layer height of 0.04mm with a base layer of 0.48mm
+
+ The Model is 79.5x57.99mm in size
+ You may print at higher layer heights below the Min Depth of 0.48mm
+ The Max Depth is 2.3mm and the Actual Depth is 2.4mm
+
+Filaments Used:
+	PLA m3D Black Transmission Distance: 0.5
+	PLA m3D Red Transmission Distance: 4.2
+	PLA BambuLab Basic Orange Transmission Distance: 4.6
+	PLA BambuLab Basic Jade White Transmission Distance: 7
+This print uses 4 unique filaments
+
+Swap Instructions:
+	Start with Black
+	At layer #7 (0.72mm) swap to Red
+	At layer #17 (1.12mm) swap to Orange
+	At layer #29 (1.6mm) swap to Jade White for the rest.
