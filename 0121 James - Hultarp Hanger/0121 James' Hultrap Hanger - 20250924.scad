@@ -7,9 +7,16 @@
 //
 // Sept 24 -- ~2:30 to ~3:30pm -- chat at his house -- ~1hr
 // Sept 26 -- 14:26-16:37 -- design -- 2h11 hr
+// Oct 7 -- 16:23-16:57 -- split design -- 0h34 hr
+// Oct 8 -- 11:50-12:55, 13:37-15:23 -- split design, set up for print -- 2h51 hr
+//       -- ~3hr printing
+// Oct 9 -- 10:15-11:11 -- clean up design based on print A -- 0h56 hr
+//       -- ~3hr printing
 
 // TODO:
-// - how to split so it fits in my print volume of 256x256x256
+// - add top crossbar?
+// - add screws to back of wall supports?
+// - pull hardware deminions out into a separate library
 
 // rod OD is ~19.4mm
 //     - add felt to inside of hanging
@@ -19,10 +26,10 @@
 //     - add felt to wall end
 // Consider printing in Black PETG (if I have any)
 
-// Thickness of rim
-x_thickness = 5.25;
+// Thickness of rim (5.25mm appears to be the original design, 7.0mm fits a M3 wafer head screw)
+x_thickness = 7.0;
 // Height of rim
-z_thickness = x_thickness * 3;
+z_thickness = 15;
 // Inside diameter of circular part of the bin
 bin_inside_diameter = 125;
 // Inside straight section of bin
@@ -48,6 +55,53 @@ wall_support_wall_clearance = arm_id_clearance;
 // distance between the rod center and the wall
 wall_offset = 105;  // confirm
 
+
+// from Seeding Robot project (reference only)
+m3_wafer_head_diameter = 6.9;
+m3_wafer_head_thickness = 0.76;
+
+m3_nut_diameter_slip_fit = 6.2;
+m3_nut_height_slip_fit = 2.5;
+
+
+// M3 clear outside diameter (nominal diameter of 3 mm)
+m3_od = 3.5;  // at 3.5mm, it could be tighter, but the play isn't excessive
+// M3 wafer head diamter
+m3_head_od = 5.8 + 0.25;  // was 6.9mm, but had too much play
+// M3 water head height
+m3_head_z = 0.80;  // was 0.76mm, nominally 0.7mm, set to multiple of layer height
+// M3 nut across the "flats"
+m3_nut_flats = 6.2;  // nominally 5.35mm and was 5.4mm, but gives no clearance
+// M3 nut width clearance
+m3_nut_z = 2.6;  // measured at 2.28mm, was 2.5mm and could be a hair looser
+
+
+// lenght of M3 screw joining the drop hangers to the oval
+m3_y1 = 21;
+// length of M3 screws joining the front of the oval (vertical)
+m3_y2 = 12.5;
+//lenght of M3 screws on the wall support side
+m3_y3 = 21;
+// nut offset for screw joining drop hangers to the oval (to close side of nut)
+m3_nut_offset_1 = 10;
+// nut offset for screw joining the rim together (to top of nut)
+m3_nut_offset_2 = 10;
+// nut offset for screw holding in the wall supports (to "front" of nut, closest to the wall)
+m3_nut_offset_3 = 3;
+
+// support arm legnth (on rim)
+// support_x = z_thickness * 2;
+support_x = arm_x;
+
+// how much of the rim support is in the top
+support_z_percent = 0.3;
+
+font_face = "Aldo";
+font_size = 5;
+deboss_depth = 1;  // should be multiple of layer height
+
+// printing layer height
+layer_height = 0.2;
 // fudge factor for rendering
 fudge = 0.1;
 // circle faces
@@ -71,10 +125,132 @@ wall_support_length = wall_offset - wall_support_wall_clearance;
 
 echo("bar z", connecting_bar_length_z, "bar y", connecting_bar_length_y, "bar c", connecting_bar_length);
 
+// distance from centerline of bin to centerline of arm (?)
 support_arm_offset = (bin_straight - arm_x) / 2;
+
+module m3_screw(length = 10, overhangs = 0) {
+    // overhangs: 0 or 1 -- improvements for printing as overhang; gives height
+    //                      in layers
+
+    // head
+    translate([0, 0, -fudge]) 
+    cylinder(d = m3_head_od, h = m3_head_z + fudge);
+
+    // shaft
+    cylinder(d = m3_od, h = length);
+
+    // print overhang helps
+    intersection() {
+        translate([-m3_od / 2, -m3_head_od / 2, m3_head_z])
+        cube([m3_od, m3_head_od, layer_height * overhangs]);
+
+        cylinder(d = m3_head_od, h = m3_head_z + layer_height * (overhangs + 1));
+    }
+    intersection() {
+        translate([-m3_od / 2, -m3_od / 2, m3_head_z + layer_height * overhangs])
+        cube([m3_od, m3_od, layer_height * 2 * overhangs]);
+
+        translate([-m3_od / 2, -m3_head_od / 2, m3_head_z])
+        cube([m3_od, m3_head_od, layer_height * 2 * overhangs]);
+
+        cylinder(d = m3_head_od, h = m3_head_z + layer_height * 2 * (overhangs+1));
+    }
+}
+
+module m3_nut() {
+    // assuming slip fit
+
+    // distance across flats / cos(30) = distance across corners (aka "diameter")
+
+    cylinder(d = m3_nut_flats / cos(30), h = m3_nut_z, $fn=6);
+}
+
+module m3_nut_slot(shaft_offset = 0) {
+    translate([0, 0, shaft_offset]) {
+        rotate([0, 0, 30])
+        m3_nut();
+
+        translate([m3_nut_flats / 2, 0, 0])
+        rotate([0, 0, 180])
+        cube([m3_nut_flats, 20, m3_nut_z]);
+    }
+}
+
+module screw_holes() {
+    // screws used to hold this together. Designed to be used as a void.
+
+    // rim into drop arms
+    translate([support_arm_offset, -x_thickness - fudge, -z_thickness/2])
+    rotate([-90, 0, 0]) {
+        m3_screw(length = m3_y1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_1);
+    }
+
+    translate([-support_arm_offset, -x_thickness - fudge, -z_thickness/2])
+    rotate([-90, 0, 0]) {
+        m3_screw(length = m3_y1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_1);
+    }
+
+    // back (wall side) of drop arms
+    translate([support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
+    rotate([-90, 0, 180]) {
+        m3_screw(length = m3_y3);
+        m3_nut_slot(shaft_offset = m3_nut_offset_3);
+    }
+
+    translate([-support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
+    rotate([-90, 0, 180]) {
+        m3_screw(length = m3_y3);
+        m3_nut_slot(shaft_offset = m3_nut_offset_3);
+    }
+
+    // back rim
+    translate([
+        -support_arm_offset + arm_x / 2 + support_x / 2,
+        -x_thickness / 2,
+        fudge
+    ])
+    rotate([180, 0, 180]) {
+        m3_screw(length = m3_y2, overhangs = 1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+    }
+
+    translate([
+        support_arm_offset - arm_x / 2 - support_x / 2,
+        -x_thickness / 2,
+        fudge
+    ])
+    rotate([180, 0, 180]) {
+        m3_screw(length = m3_y2, overhangs = 1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+    }
+
+    // front rim
+    translate([
+        -support_arm_offset + arm_x / 2 + support_x / 2,
+        -x_thickness / 2 - bin_inside_diameter - x_thickness,
+        fudge
+    ])
+    rotate([180, 0, 0]) {
+        m3_screw(length = m3_y2, overhangs = 1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+    }
+
+    translate([
+        support_arm_offset - arm_x / 2 - support_x / 2,
+        -x_thickness / 2 - bin_inside_diameter - x_thickness,
+        fudge
+    ])
+    rotate([180, 0, 0]) {
+        m3_screw(length = m3_y2, overhangs = 1);
+        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+    }
+}
 
 
 module rim() {
+    // rim as a single piece (too big to fit on my printer)
     // root is top of center of back, outside edge
 
     translate([-bin_straight / 2, -rim_y / 2, -z_thickness]) 
@@ -99,90 +275,316 @@ module rim() {
             cube([bin_straight, bin_inside_diameter, z_thickness + 2 * fudge]);
         }
 
+        translate([bin_straight / 2, rim_y / 2, z_thickness])
+        screw_holes();
     }
 }
 
 module support_arm() {
     // single support arm
+    _serial = "WM 0121-01B";
 
-    translate([-arm_x / 2, upper_outside_diameter / 2, arm_length - arm_y]) { 
-        // top over-rod portion
-        rotate([270, 0, -90]) 
-        difference() {
-            cylinder(h = arm_x, d = upper_outside_diameter);
+    difference() {
+        union() {
 
-            translate([0, 0, -fudge]) 
-            cylinder(h = arm_x + 2 * fudge, d = upper_inside_diameter);
+            translate([-arm_x / 2, upper_outside_diameter / 2, arm_length - arm_y]) { 
+                // top over-rod portion
+                rotate([270, 0, -90]) 
+                difference() {
+                    cylinder(h = arm_x, d = upper_outside_diameter);
 
-            translate([-upper_outside_diameter - fudge, 0, -fudge])
-            cube([
-                2 * upper_outside_diameter + 2 * fudge,
-                upper_outside_diameter,
-                arm_x + 2 * fudge
-            ]);
-        }
+                    translate([0, 0, -fudge]) 
+                    cylinder(h = arm_x + 2 * fudge, d = upper_inside_diameter);
 
-        // straight coming off top
-        translate([0, -upper_inside_diameter / 2 - arm_y, -upper_inside_diameter / 2]) 
-        cube([arm_x, arm_y, upper_inside_diameter / 2]);
+                    translate([-upper_outside_diameter - fudge, 0, -fudge])
+                    cube([
+                        2 * upper_outside_diameter + 2 * fudge,
+                        upper_outside_diameter,
+                        arm_x + 2 * fudge
+                    ]);
+                }
 
-        // straight coming too bottom
-        translate([0, upper_inside_diameter / 2, -arm_length]) 
-        cube([arm_x, arm_y, upper_inside_diameter / 2 + arm_y]);
+                // straight coming off top
+                translate([0, -upper_inside_diameter / 2 - arm_y, -upper_inside_diameter / 2]) 
+                cube([arm_x, arm_y, upper_inside_diameter / 2]);
 
-        // bar connected top and bottom
+                // straight coming too bottom
+                translate([0, upper_inside_diameter / 2, -arm_length]) 
+                cube([arm_x, arm_y, upper_inside_diameter / 2 + arm_y]);
+
+                // bar connected top and bottom
+                translate([
+                    arm_x,
+                    upper_inside_diameter / 2 + arm_y,
+                    -upper_inside_diameter / 2 - connecting_bar_length_z
+                ])
+                rotate([0, 180, 0])
+                rotate([
+                    168.478,  // TODO: ideally, calculate this angle!
+                    0,
+                    0
+                ])
+                cube([arm_x, arm_y, connecting_bar_length]);
+
+                // support "foot" (to bin)
+                translate([0, -upper_outside_diameter / 2, -arm_length]) 
+                cube([arm_x, upper_outside_diameter, arm_y]);
+
+                // fillet for inside corner
+                translate([0, upper_outside_diameter / 2 - 2 * arm_y, -arm_length + arm_y]) 
+                difference() {
+                    cube([arm_x, arm_fillet_r, arm_fillet_r]);
+
+                    translate([-fudge, 0, arm_fillet_r]) 
+                    rotate([0, 90, 0])
+                    cylinder(r = arm_fillet_r, h = arm_x + 2 * fudge);
+                }
+            }
+
+            // wall support
+            translate([-wall_support_diameter / 2, 0, -wall_support_diameter]) {
+                cube([wall_support_diameter, upper_outside_diameter, wall_support_diameter]);
+
+                translate([wall_support_diameter / 2, 0, wall_support_diameter / 2]) 
+                rotate([270, 0, 0])
+                cylinder(h = wall_support_length, d = wall_support_diameter);
+
+                // turn the wall support into a cube for easier printing
+                cube([wall_support_diameter, wall_support_length, wall_support_diameter]);
+            }
+        }  // union
+
+        translate([support_arm_offset, 0, 0])
+        screw_holes();
+
+        // part label
+        translate([0, wall_support_diameter, -wall_support_diameter + deboss_depth - fudge])
+        rotate([180, 0, 90])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "center"
+        );
+    }
+}
+
+// module wall_support() {
+//     translate([-wall_support_diameter / 2, 0, -wall_support_diameter]) {
+//         cube([wall_support_diameter, upper_outside_diameter, wall_support_diameter]);
+
+//         translate([wall_support_diameter / 2, 0, wall_support_diameter / 2]) 
+//         rotate([270, 0, 0])
+//         cylinder(h = wall_support_length, d = wall_support_diameter);
+//     }
+// }
+
+module rim_ends() {
+    difference() {
+        rim();
+
+        // interface with centre beam
         translate([
-            arm_x,
-            upper_inside_diameter / 2 + arm_y,
-            -upper_inside_diameter / 2 - connecting_bar_length_z
+            -support_arm_offset + arm_x / 2,
+            -1 * (bin_inside_diameter + 2 * x_thickness) - fudge,
+            -support_z_percent * (z_thickness + fudge)
         ])
-        rotate([0, 180, 0])
-        rotate([169.229, 0, 0])  // ideally, calculate this angle!
-        cube([arm_x, arm_y, connecting_bar_length]);
+        cube([
+            2 * support_arm_offset - arm_x,
+            bin_inside_diameter + 2 * x_thickness + 2 * fudge,
+            z_thickness + 2 * fudge
+        ]);
 
-        // support "foot" (to bin)
-        translate([0, -upper_outside_diameter / 2, -arm_length]) 
-        cube([arm_x, upper_outside_diameter, arm_y]);
+        // chop center out
+        translate([
+            -1 * (support_arm_offset - arm_x / 2 - support_x),
+            -1 * (bin_inside_diameter + 2 * x_thickness) - fudge,
+            -1 * (z_thickness + fudge)
+        ])
+        cube([
+            2 * support_arm_offset - arm_x - 2 * support_x,
+            bin_inside_diameter + 2 * x_thickness + 2 * fudge,
+            z_thickness + 2 * fudge
+        ]);
+    }
+}
 
-        // fillet for inside corner
-        translate([0, upper_outside_diameter / 2 - 2 * arm_y, -arm_length + arm_y]) 
-        difference() {
-            cube([arm_x, arm_fillet_r, arm_fillet_r]);
+module rim_end_left() {
+    _serial = "WM 0121-02B";
+    
+    difference() {
+        rim_ends();
 
-            translate([-fudge, 0, arm_fillet_r]) 
-            rotate([0, 90, 0])
-            cylinder(r = arm_fillet_r, h = arm_x + 2 * fudge);
+        translate([
+            0,
+            -1 * (bin_inside_diameter + 2 * x_thickness) - fudge,
+            -1 * (z_thickness + fudge)
+        ])
+        cube([
+            bin_straight / 2 + bin_inside_diameter + x_thickness + fudge,
+            bin_inside_diameter + 2 * x_thickness + 2 * fudge,
+            z_thickness + 2 * fudge
+        ]);
+
+        // part label
+        translate([-bin_straight / 2 - 6, -x_thickness / 2, -z_thickness + deboss_depth])
+        rotate([180, 0, 0])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "center"
+        );
+    }
+}
+
+module rim_end_right(){
+    _serial = "WM 0121-03B";
+
+    difference() {
+        rim_ends();
+
+        translate([
+            -1 * (bin_straight / 2 + bin_inside_diameter + x_thickness + fudge),
+            -1 * (bin_inside_diameter + 2 * x_thickness) - fudge,
+            -1 * (z_thickness + fudge)
+        ])
+        cube([
+            bin_straight / 2 + bin_inside_diameter + x_thickness + 2 * fudge,
+            bin_inside_diameter + 2 * x_thickness + 2 * fudge,
+            z_thickness + 2 * fudge
+        ]);
+
+        // part label
+        translate([bin_straight / 2 + 6, -x_thickness / 2, -z_thickness + deboss_depth])
+        rotate([180, 0, 0])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "right",
+            valign = "center"
+        );
+    }
+}
+
+module rim_crossbars() {
+    // quick render doesn't show what the actual part; full render works
+    difference() {
+        rim();
+
+        rim_end_left();
+        rim_end_right();
+    }
+}
+
+module rim_crossbar_front() {
+    _serial = "WM 0121-04B";
+
+    difference() {
+        rim_crossbars();
+
+        translate([
+            -2 * bin_straight,
+            -bin_inside_diameter / 2,
+            -z_thickness - fudge
+        ])
+        cube([
+            4 * bin_straight,
+            bin_inside_diameter,
+            z_thickness + 2 * fudge
+        ]);
+
+        // part label
+        translate([0, -x_thickness * 3 / 2 - bin_inside_diameter, -z_thickness + deboss_depth])
+        rotate([180, 0, 0])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "center"
+        );
+    }
+}
+
+module rim_crossbar_back() {
+    // for some reason, this includes the text from the rim ends
+    // can just use a second x04 part
+    _serial = "WM 0121-05B";
+
+    difference() {
+        rim_crossbars();
+
+        translate([
+            -2 * bin_straight,
+            -bin_inside_diameter * 3 / 2,
+            -z_thickness - fudge
+        ])
+        cube([
+            4 * bin_straight,
+            bin_inside_diameter,
+            z_thickness + 2 * fudge
+        ]);
+
+        // part label
+        translate([0, -x_thickness / 2, -z_thickness + deboss_depth])
+        rotate([180, 0, 0])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "center"
+        );
+    }
+}
+
+
+
+module assembly(exploded = 0) {
+    difference() {
+        union() {
+            translate([0, -exploded * 25, 0]) {
+                rim_end_left();
+                rim_end_right();
+
+                translate([0, 0, exploded * 25]) {
+                    rim_crossbar_front();
+                    rim_crossbar_back();
+                }
+            }
+
+
+            translate([support_arm_offset, 0, 0]) {
+                support_arm();
+                // wall_support();
+            }
+            translate([-support_arm_offset, 0, 0]) {
+                support_arm();
+                // wall_support();
+            }
+
+            // // bar between the two drop rods
+            // translate([-support_arm_offset, 0, arm_length - upper_inside_diameter / 2 - arm_y]) 
+            // cube([support_arm_offset * 2, arm_y, upper_inside_diameter / 2]);
         }
     }
 }
 
-module wall_support() {
-    translate([-wall_support_diameter / 2, 0, -wall_support_diameter]) {
-        cube([wall_support_diameter, upper_outside_diameter, wall_support_diameter]);
+// assembly(exploded = 1);
 
-        translate([wall_support_diameter / 2, 0, wall_support_diameter / 2]) 
-        rotate([270, 0, 0])
-        cylinder(h = wall_support_length, d = wall_support_diameter);
-    }
-}
-
-
-module assembly() {
-    rim();
-
-    translate([support_arm_offset, 0, 0]) {
-        support_arm();
-        wall_support();
-    }
-    translate([-support_arm_offset, 0, 0]) {
-        support_arm();
-        wall_support();
-    }
-
-    // bar between the two drop rods
-    translate([-support_arm_offset, 0, arm_length - upper_inside_diameter / 2 - arm_y]) 
-    cube([support_arm_offset * 2, arm_y, upper_inside_diameter / 2]);
-}
-
-assembly();
+// by parts
+// support_arm();
+// rim_end_left();
+// rim_end_right();
+// rim_crossbar_front();
+rim_crossbar_back();
 
