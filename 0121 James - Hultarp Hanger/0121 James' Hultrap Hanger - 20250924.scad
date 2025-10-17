@@ -7,16 +7,26 @@
 //
 // Sept 24 -- ~2:30 to ~3:30pm -- chat at his house -- ~1hr
 // Sept 26 -- 14:26-16:37 -- design -- 2h11 hr
-// Oct 7 -- 16:23-16:57 -- split design -- 0h34 hr
-// Oct 8 -- 11:50-12:55, 13:37-15:23 -- split design, set up for print -- 2h51 hr
-//       -- ~3hr printing
-// Oct 9 -- 10:15-11:11 -- clean up design based on print A -- 0h56 hr
-//       -- ~3hr printing
+// Oct 7   -- 16:23-16:57 -- split design -- 0h34 hr
+// Oct 8   -- 11:50-12:55, 13:37-15:23 -- split design, set up for print -- 2h51 hr
+//         -- ~3hr printing
+// Oct 9   -- 10:15-11:11 -- clean up design based on print A -- 0h56 hr
+//         -- ~3hr + ~0h45 printing
+//         -- 15:06 - 15:38 -- assembly -- 0h32 hr
+// Oct 10  -- dropped off print; he paid me $400 (8 hr)
+//         -- got the go-ahead for companion recipe holder (make it come in under $400)
+// Oct 16  -- 14:42 - 15:41 -- trying to simply model for better rendering -- 0h59
+//         -- 20:51 - 21:24 -- increase drop arm front fillet -- 0h33
+//         -- 21:54 - 21:38 -- tighten up nut hole, setup C print -- 0h44
+//         -- ~0h45 printing, using rectilinear infill 
+
 
 // TODO:
 // - add top crossbar?
 // - add screws to back of wall supports?
-// - pull hardware deminions out into a separate library
+// - pull hardware dimensions out into a separate library
+// - current (B print) nut slots are too wide, and so the nuts spin in the slot
+// - consider strengthening fillet on hangers
 
 // rod OD is ~19.4mm
 //     - add felt to inside of hanging
@@ -25,6 +35,9 @@
 //     - consider if it makes sense to make this adjustable
 //     - add felt to wall end
 // Consider printing in Black PETG (if I have any)
+//
+// Want recipe holder to come ~118mm below rim top
+// Want recipe holder to clear the top hangers at their angle
 
 // Thickness of rim (5.25mm appears to be the original design, 7.0mm fits a M3 wafer head screw)
 x_thickness = 7.0;
@@ -46,14 +59,22 @@ arm_y = x_thickness;
 arm_id = 19.4;
 // clearance around rod (for felt, etc)
 arm_id_clearance = 2.1;
-// radius for bottom fillet on arm
-arm_fillet_r = x_thickness;
+// radius for bottom fillet on arm (for B, was x_thickness or 7mm)
+arm_fillet_r = 22;
+// shift the arm fillet forward this amount; needed for larger diameters
+arm_fillet_plus_y = 3;
+// extend arm fillet this amount straight up on the back
+arm_fillet_plus_z = 5;
+// number of faces to use for fillet
+arm_fillet_fn = 48;
 // diameter of wall support
 wall_support_diameter = arm_x;
 // clearance (i.e. felt) on end of wall support
 wall_support_wall_clearance = arm_id_clearance;
 // distance between the rod center and the wall
 wall_offset = 105;  // confirm
+// number of faces to use for rim (set here rather than globally)
+rim_fn = 90;
 
 
 // from Seeding Robot project (reference only)
@@ -71,16 +92,17 @@ m3_head_od = 5.8 + 0.25;  // was 6.9mm, but had too much play
 // M3 water head height
 m3_head_z = 0.80;  // was 0.76mm, nominally 0.7mm, set to multiple of layer height
 // M3 nut across the "flats"
-m3_nut_flats = 6.2;  // nominally 5.35mm and was 5.4mm, but gives no clearance
+m3_nut_flats = 5.6;  // nominally 5.35mm and was 5.4mm, but gives no clearance; if 6.2mm the nut can turn freely
 // M3 nut width clearance
 m3_nut_z = 2.6;  // measured at 2.28mm, was 2.5mm and could be a hair looser
+// circle faces for screw shaft (double for head)
+screw_fn = 12;
 
-
-// lenght of M3 screw joining the drop hangers to the oval
+// length of M3 screw joining the drop hangers to the oval
 m3_y1 = 21;
 // length of M3 screws joining the front of the oval (vertical)
 m3_y2 = 12.5;
-//lenght of M3 screws on the wall support side
+// length of M3 screws on the wall support side
 m3_y3 = 21;
 // nut offset for screw joining drop hangers to the oval (to close side of nut)
 m3_nut_offset_1 = 10;
@@ -104,8 +126,6 @@ deboss_depth = 1;  // should be multiple of layer height
 layer_height = 0.2;
 // fudge factor for rendering
 fudge = 0.1;
-// circle faces
-$fn=90;
 
 
 // Calculated
@@ -134,26 +154,51 @@ module m3_screw(length = 10, overhangs = 0) {
 
     // head
     translate([0, 0, -fudge]) 
-    cylinder(d = m3_head_od, h = m3_head_z + fudge);
+    cylinder(d = m3_head_od, h = m3_head_z + fudge, $fn = 2 * screw_fn);
 
     // shaft
-    cylinder(d = m3_od, h = length);
+    cylinder(d = m3_od, h = length, $fn = screw_fn);
 
-    // print overhang helps
-    intersection() {
-        translate([-m3_od / 2, -m3_head_od / 2, m3_head_z])
-        cube([m3_od, m3_head_od, layer_height * overhangs]);
+    if (overhangs != 0) {
+        // print overhang helps
+        intersection() {
+            translate([-m3_od / 2, -m3_head_od / 2, m3_head_z])
+            cube([m3_od, m3_head_od, layer_height * overhangs]);
 
-        cylinder(d = m3_head_od, h = m3_head_z + layer_height * (overhangs + 1));
-    }
-    intersection() {
-        translate([-m3_od / 2, -m3_od / 2, m3_head_z + layer_height * overhangs])
-        cube([m3_od, m3_od, layer_height * 2 * overhangs]);
+            translate([0, 0, m3_head_z]) 
+            cylinder(
+                d = m3_head_od,
+                h = layer_height * (overhangs),
+                $fn = 2 * screw_fn
+            );
+        }
 
-        translate([-m3_od / 2, -m3_head_od / 2, m3_head_z])
-        cube([m3_od, m3_head_od, layer_height * 2 * overhangs]);
+        intersection() {
+            translate([
+                -m3_od / 2,
+                -m3_od / 2,
+                m3_head_z + layer_height * overhangs
+            ])
+            cube([m3_od, m3_od, layer_height * overhangs]);
 
-        cylinder(d = m3_head_od, h = m3_head_z + layer_height * 2 * (overhangs+1));
+            translate([
+                -m3_od / 2,
+                -m3_head_od / 2,
+                m3_head_z + layer_height * overhangs
+            ])
+            cube([m3_od, m3_head_od, layer_height * overhangs]);
+
+            translate([
+                0,
+                0,
+                m3_head_z + layer_height * overhangs
+            ])
+            cylinder(
+                d = m3_head_od,
+                h = layer_height * overhangs,
+                $fn = 2 * screw_fn
+            );
+        }
     }
 }
 
@@ -176,117 +221,158 @@ module m3_nut_slot(shaft_offset = 0) {
     }
 }
 
-module screw_holes() {
+module screw_holes(wall = 0, back_rim = 0, front_rim = 0) {
     // screws used to hold this together. Designed to be used as a void.
 
     // rim into drop arms
-    translate([support_arm_offset, -x_thickness - fudge, -z_thickness/2])
-    rotate([-90, 0, 0]) {
-        m3_screw(length = m3_y1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_1);
-    }
+    if (back_rim != 0) {
+        // far right
+        translate([support_arm_offset, -x_thickness - fudge, -z_thickness/2])
+        rotate([-90, 0, 0]) {
+            m3_screw(length = m3_y1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_1);
+        }
 
-    translate([-support_arm_offset, -x_thickness - fudge, -z_thickness/2])
-    rotate([-90, 0, 0]) {
-        m3_screw(length = m3_y1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_1);
+        // centered
+        translate([0, -x_thickness - fudge, -z_thickness/2])
+        rotate([-90, 0, 0]) {
+            m3_screw(length = m3_y1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_1);
+        }
+
+        // far left
+        translate([-support_arm_offset, -x_thickness - fudge, -z_thickness/2])
+        rotate([-90, 0, 0]) {
+            m3_screw(length = m3_y1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_1);
+        }
     }
 
     // back (wall side) of drop arms
-    translate([support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
-    rotate([-90, 0, 180]) {
-        m3_screw(length = m3_y3);
-        m3_nut_slot(shaft_offset = m3_nut_offset_3);
-    }
+    if (wall != 0) {
+        translate([support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
+        rotate([-90, 0, 180]) {
+            m3_screw(length = m3_y3);
+            m3_nut_slot(shaft_offset = m3_nut_offset_3);
+        }
 
-    translate([-support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
-    rotate([-90, 0, 180]) {
-        m3_screw(length = m3_y3);
-        m3_nut_slot(shaft_offset = m3_nut_offset_3);
+        translate([-support_arm_offset, wall_support_length, -z_thickness/2 - 2 * fudge])
+        rotate([-90, 0, 180]) {
+            m3_screw(length = m3_y3);
+            m3_nut_slot(shaft_offset = m3_nut_offset_3);
+        }
     }
 
     // back rim
-    translate([
-        -support_arm_offset + arm_x / 2 + support_x / 2,
-        -x_thickness / 2,
-        fudge
-    ])
-    rotate([180, 0, 180]) {
-        m3_screw(length = m3_y2, overhangs = 1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_2);
-    }
+    if (back_rim != 0) {
+        // far left
+        translate([
+            -support_arm_offset + arm_x / 2 + support_x / 2,
+            -x_thickness / 2,
+            fudge
+        ])
+        rotate([180, 0, 180]) {
+            m3_screw(length = m3_y2, overhangs = 1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        }
 
-    translate([
-        support_arm_offset - arm_x / 2 - support_x / 2,
-        -x_thickness / 2,
-        fudge
-    ])
-    rotate([180, 0, 180]) {
-        m3_screw(length = m3_y2, overhangs = 1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        // far right
+        translate([
+            support_arm_offset - arm_x / 2 - support_x / 2,
+            -x_thickness / 2,
+            fudge
+        ])
+        rotate([180, 0, 180]) {
+            m3_screw(length = m3_y2, overhangs = 1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        }
     }
 
     // front rim
-    translate([
-        -support_arm_offset + arm_x / 2 + support_x / 2,
-        -x_thickness / 2 - bin_inside_diameter - x_thickness,
-        fudge
-    ])
-    rotate([180, 0, 0]) {
-        m3_screw(length = m3_y2, overhangs = 1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_2);
-    }
+    if (front_rim != 0) {
+        translate([
+            -support_arm_offset + arm_x / 2 + support_x / 2,
+            -x_thickness / 2 - bin_inside_diameter - x_thickness,
+            fudge
+        ])
+        rotate([180, 0, 0]) {
+            m3_screw(length = m3_y2, overhangs = 1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        }
 
-    translate([
-        support_arm_offset - arm_x / 2 - support_x / 2,
-        -x_thickness / 2 - bin_inside_diameter - x_thickness,
-        fudge
-    ])
-    rotate([180, 0, 0]) {
-        m3_screw(length = m3_y2, overhangs = 1);
-        m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        translate([
+            support_arm_offset - arm_x / 2 - support_x / 2,
+            -x_thickness / 2 - bin_inside_diameter - x_thickness,
+            fudge
+        ])
+        rotate([180, 0, 0]) {
+            m3_screw(length = m3_y2, overhangs = 1);
+            m3_nut_slot(shaft_offset = m3_nut_offset_2);
+        }
     }
 }
 
+
+module rim_straight_only() {
+    // this is just the front and back edge of the rim. Used to simplify
+    // rendering
+
+    translate([-bin_straight / 2, -rim_y / 2, -z_thickness])
+    difference() {
+        translate([0, -rim_y / 2, 0])
+        cube([bin_straight, rim_y, z_thickness]);
+
+        translate([-fudge, 0, -fudge]) {
+            translate([0, -bin_inside_diameter / 2, 0])
+            cube([bin_straight + 2 * fudge, bin_inside_diameter, z_thickness + 2 * fudge]);
+        }
+
+        translate([bin_straight / 2, rim_y / 2, z_thickness])
+        screw_holes(back_rim = 1, front_rim = 1);
+    }
+}
 
 module rim() {
     // rim as a single piece (too big to fit on my printer)
     // root is top of center of back, outside edge
 
-    translate([-bin_straight / 2, -rim_y / 2, -z_thickness]) 
+    // wrap in `render()` to cache the results ?
+
+    // render() {
+    translate([-bin_straight / 2, -rim_y / 2, -z_thickness])
     difference() {
         union() {
-            cylinder(h = z_thickness, d = rim_y);
+            cylinder(h = z_thickness, d = rim_y, $fn=rim_fn);
 
             translate([bin_straight, 0, 0])
-            cylinder(h = z_thickness, d = rim_y);
+            cylinder(h = z_thickness, d = rim_y, $fn=rim_fn);
 
             translate([0, -rim_y / 2, 0])
             cube([bin_straight, rim_y, z_thickness]);
         }
 
         translate([0, 0, -fudge]) {
-            cylinder(h = z_thickness + 2 * fudge, d = bin_inside_diameter);
+            cylinder(h = z_thickness + 2 * fudge, d = bin_inside_diameter, $fn=rim_fn);
 
             translate([bin_straight, 0, 0])
-            cylinder(h = z_thickness + 2 * fudge, d = bin_inside_diameter);
+            cylinder(h = z_thickness + 2 * fudge, d = bin_inside_diameter, $fn=rim_fn);
 
             translate([0, -bin_inside_diameter / 2, 0])
             cube([bin_straight, bin_inside_diameter, z_thickness + 2 * fudge]);
         }
 
         translate([bin_straight / 2, rim_y / 2, z_thickness])
-        screw_holes();
+        screw_holes(back_rim = 1, front_rim = 1);
     }
+    // }  // render()
 }
 
 module support_arm() {
     // single support arm
-    _serial = "WM 0121-01B";
+    _serial = "WM 0121-01C";
 
     difference() {
         union() {
-
             translate([-arm_x / 2, upper_outside_diameter / 2, arm_length - arm_y]) { 
                 // top over-rod portion
                 rotate([270, 0, -90]) 
@@ -331,13 +417,35 @@ module support_arm() {
                 cube([arm_x, upper_outside_diameter, arm_y]);
 
                 // fillet for inside corner
-                translate([0, upper_outside_diameter / 2 - 2 * arm_y, -arm_length + arm_y]) 
-                difference() {
-                    cube([arm_x, arm_fillet_r, arm_fillet_r]);
+                translate([
+                    0,
+                    upper_outside_diameter / 2 - arm_y - arm_fillet_r - arm_fillet_plus_y,
+                    -arm_length + arm_y
+                ]) {
+                    difference() {
+                        cube([
+                            arm_x,
+                            arm_fillet_r + arm_fillet_plus_y,
+                            arm_fillet_r
+                        ]);
 
-                    translate([-fudge, 0, arm_fillet_r]) 
-                    rotate([0, 90, 0])
-                    cylinder(r = arm_fillet_r, h = arm_x + 2 * fudge);
+                        translate([-fudge, 0, arm_fillet_r]) 
+                        rotate([0, 90, 0])
+                        cylinder(
+                            r = arm_fillet_r,
+                            h = arm_x + 2 * fudge,
+                            $fn = arm_fillet_fn
+                        );
+                    }
+
+                    if (arm_fillet_plus_z != 0) {
+                        translate([0, arm_fillet_r, arm_fillet_r]) 
+                        cube([
+                            arm_x,
+                            arm_fillet_plus_y,
+                            arm_fillet_plus_z
+                        ]);
+                    }
                 }
             }
 
@@ -355,7 +463,7 @@ module support_arm() {
         }  // union
 
         translate([support_arm_offset, 0, 0])
-        screw_holes();
+        screw_holes(wall = 1, back_rim = 1);
 
         // part label
         translate([0, wall_support_diameter, -wall_support_diameter + deboss_depth - fudge])
@@ -414,6 +522,7 @@ module rim_ends() {
 module rim_end_left() {
     _serial = "WM 0121-02B";
     
+    render() {
     difference() {
         rim_ends();
 
@@ -440,11 +549,13 @@ module rim_end_left() {
             valign = "center"
         );
     }
+    }  // render()
 }
 
 module rim_end_right(){
     _serial = "WM 0121-03B";
 
+    render() {
     difference() {
         rim_ends();
 
@@ -471,6 +582,7 @@ module rim_end_right(){
             valign = "center"
         );
     }
+    }  // render()
 }
 
 module rim_crossbars() {
@@ -582,9 +694,19 @@ module assembly(exploded = 0) {
 // assembly(exploded = 1);
 
 // by parts
-// support_arm();
+support_arm();
 // rim_end_left();
 // rim_end_right();
 // rim_crossbar_front();
-rim_crossbar_back();
+// rim_crossbar_back();
 
+// rim_straight_only();
+
+
+// m3_screw(length = 10, overhangs = 1);
+
+// screw_holes(
+//     wall = 1,
+//     back_rim = 1,
+//     front_rim = 1
+// );
