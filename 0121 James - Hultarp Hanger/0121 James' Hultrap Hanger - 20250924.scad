@@ -18,7 +18,11 @@
 // Oct 16  -- 14:42 - 15:41 -- trying to simply model for better rendering -- 0h59
 //         -- 20:51 - 21:24 -- increase drop arm front fillet -- 0h33
 //         -- 21:54 - 21:38 -- tighten up nut hole, setup C print -- 0h44
-//         -- ~0h45 printing, using rectilinear infill 
+//         -- ~0h45 printing, using rectilinear infill
+//         -- 21:38 - 22:18 -- design of book support -- 0h40
+// Oct 18  -- 15:00 - 16:07 -- design of upper book support -- 1h07
+//         -- 18:24 - 19:30 -- design of wall supports for book support -- 1h06
+//         -- 19:30 - -- printing prep and printing
 
 
 // TODO:
@@ -76,6 +80,27 @@ wall_offset = 105;  // confirm
 // number of faces to use for rim (set here rather than globally)
 rim_fn = 90;
 
+// book support width
+book_x = 200;
+// book support thickness
+book_y = 2;
+// book support height
+book_z = 200;
+// book support ledge depth
+book_support_y = 15;
+// book support ridge spacing
+ridge_spacing = 4.1;
+// book support ridge height
+ridge_height = 2.5;
+// book support backing angle (in degrees)
+book_theta = 20;
+// book support bottom delta
+book_support_drop_z = 118;
+// book support additional arm length
+book_extra_y = 112.53;
+// upward extention of book support frame
+book_upper_z = 200;
+
 
 // from Seeding Robot project (reference only)
 m3_wafer_head_diameter = 6.9;
@@ -104,12 +129,16 @@ m3_y1 = 21;
 m3_y2 = 12.5;
 // length of M3 screws on the wall support side
 m3_y3 = 21;
+// length of M3 screws in upper book support to drop arms
+m3_y4 = 10;  // use M3x8
 // nut offset for screw joining drop hangers to the oval (to close side of nut)
 m3_nut_offset_1 = 10;
 // nut offset for screw joining the rim together (to top of nut)
 m3_nut_offset_2 = 10;
 // nut offset for screw holding in the wall supports (to "front" of nut, closest to the wall)
 m3_nut_offset_3 = 3;
+// nut offset for screw holding upper book support to drop arms
+m3_nut_offset_4 = book_y * 2 + 3;
 
 // support arm legnth (on rim)
 // support_x = z_thickness * 2;
@@ -147,6 +176,13 @@ echo("bar z", connecting_bar_length_z, "bar y", connecting_bar_length_y, "bar c"
 
 // distance from centerline of bin to centerline of arm (?)
 support_arm_offset = (bin_straight - arm_x) / 2;
+
+// number of book support ridges
+ridge_count = floor(book_support_y / (ridge_height + ridge_spacing));
+echo("(book support) ridge count", ridge_count);
+
+// upper arm single height length
+upper_support_signle_z = book_z - book_support_drop_z;
 
 module m3_screw(length = 10, overhangs = 0) {
     // overhangs: 0 or 1 -- improvements for printing as overhang; gives height
@@ -221,7 +257,13 @@ module m3_nut_slot(shaft_offset = 0) {
     }
 }
 
-module screw_holes(wall = 0, back_rim = 0, front_rim = 0) {
+module screw_holes(
+    wall = 0,
+    back_rim = 0,
+    front_rim = 0,
+    book_support_upper_screws = 0,
+    book_support_lower_screws = 0,
+) {
     // screws used to hold this together. Designed to be used as a void.
 
     // rim into drop arms
@@ -310,6 +352,79 @@ module screw_holes(wall = 0, back_rim = 0, front_rim = 0) {
             m3_nut_slot(shaft_offset = m3_nut_offset_2);
         }
     }
+
+    // upper support arms for book support
+    if (book_support_upper_screws != 0){
+        translate([support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -24])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        translate([-support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -24])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+    }
+
+    // lower support arms for book support
+    if (book_support_lower_screws != 0){
+        // upper screws
+        translate([support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -159])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        translate([-support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -159])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        // mid screws
+        translate([support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -195])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        translate([-support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -195])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        // lower screws
+        translate([support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -231])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+
+        translate([-support_arm_offset, upper_outside_diameter / 2, arm_length - arm_y])
+        rotate([-book_theta, 0, 0])
+        translate([0, -upper_outside_diameter / 2, -231])
+        rotate([-90, 90, 0]) {
+            m3_screw(length = m3_y4, overhangs = 0);
+            m3_nut_slot(shaft_offset = m3_nut_offset_4);
+        }
+    }
 }
 
 
@@ -367,9 +482,10 @@ module rim() {
     // }  // render()
 }
 
-module support_arm() {
+module support_arm(for_book_support = 0) {
     // single support arm
-    _serial = "WM 0121-01C";
+    _serial =  (for_book_support == 0) ? "WM 0121-01D" : "WM 0121-08D";
+    //                                   ^ bin arm       ^ book arm   
 
     difference() {
         union() {
@@ -460,10 +576,77 @@ module support_arm() {
                 // turn the wall support into a cube for easier printing
                 cube([wall_support_diameter, wall_support_length, wall_support_diameter]);
             }
+
+            if (for_book_support == 1) {
+                // book support main support
+                translate([-wall_support_diameter / 2, -book_extra_y / 2, -wall_support_diameter])
+                cube([wall_support_diameter, book_extra_y / 2, wall_support_diameter]);
+
+                // book support back plate
+                translate([
+                    -wall_support_diameter / 2,
+                    -book_extra_y,
+                    -wall_support_diameter - book_support_drop_z
+                ])
+                rotate([-book_theta, 0, 0])
+                translate([0, book_y * 2, book_z / 2 - 5]) {
+                    cube([
+                        wall_support_diameter,
+                        wall_support_diameter,
+                        2 * arm_fillet_r + 3 * wall_support_diameter - 3.9
+                    ]);
+
+                    // bottom "catch"
+                    translate([0, -book_y, 0]) 
+                    cube([
+                        wall_support_diameter,
+                        book_y,
+                        22.8  // leave a 0.2mm gap here for fit
+                    ]);
+
+                    // fillet for book support (upper only)
+                    translate([0, wall_support_diameter, 62.8])
+                    difference() {
+                        _increated_z = 10;
+                        translate([0, 0, -_increated_z])
+                        cube([
+                            wall_support_diameter,
+                            arm_fillet_r + 8,
+                            arm_fillet_r + _increated_z
+                        ]);
+
+                        translate([-fudge, arm_fillet_r, arm_fillet_r]) 
+                        rotate([0, 90, 0])
+                        cylinder(
+                            r = arm_fillet_r,
+                            h = wall_support_diameter + 2 * fudge,
+                            $fn = arm_fillet_fn
+                        );
+                    }
+                }
+
+                // book support top support
+                translate([-arm_x / 2, upper_outside_diameter / 2, arm_length - arm_y])
+                rotate([-book_theta, 0, 0])
+                translate([0, -upper_outside_diameter / 2 + 2 * book_y, -30]) {
+                    cube([arm_x, arm_y, 15]);
+
+                    translate([0, arm_y / 2, 0])
+                    cube([arm_x, arm_y, 7.5]);
+                }
+            }  // for_book_support
         }  // union
 
         translate([support_arm_offset, 0, 0])
-        screw_holes(wall = 1, back_rim = 1);
+        if (for_book_support == 0) {
+            screw_holes(wall = 1, back_rim = 1);
+        } else if (for_book_support == 1) {
+            screw_holes(
+                wall = 1,
+                book_support_upper_screws = 1,
+                book_support_lower_screws = 1,
+            );
+        }
 
         // part label
         translate([0, wall_support_diameter, -wall_support_diameter + deboss_depth - fudge])
@@ -520,7 +703,7 @@ module rim_ends() {
 }
 
 module rim_end_left() {
-    _serial = "WM 0121-02B";
+    _serial = "WM 0121-02D";
     
     render() {
     difference() {
@@ -553,7 +736,7 @@ module rim_end_left() {
 }
 
 module rim_end_right(){
-    _serial = "WM 0121-03B";
+    _serial = "WM 0121-03D";
 
     render() {
     difference() {
@@ -581,7 +764,7 @@ module rim_end_right(){
             halign = "right",
             valign = "center"
         );
-    }
+    }  // difference()
     }  // render()
 }
 
@@ -596,7 +779,7 @@ module rim_crossbars() {
 }
 
 module rim_crossbar_front() {
-    _serial = "WM 0121-04B";
+    _serial = "WM 0121-04D";
 
     difference() {
         rim_crossbars();
@@ -629,7 +812,7 @@ module rim_crossbar_front() {
 module rim_crossbar_back() {
     // for some reason, this includes the text from the rim ends
     // can just use a second x04 part
-    _serial = "WM 0121-05B";
+    _serial = "WM 0121-05D";
 
     difference() {
         rim_crossbars();
@@ -659,54 +842,172 @@ module rim_crossbar_back() {
     }
 }
 
+module book_support() {
+    _serial = "WM 0121-06D";
 
-
-module assembly(exploded = 0) {
     difference() {
-        union() {
-            translate([0, -exploded * 25, 0]) {
-                rim_end_left();
-                rim_end_right();
+        translate([-book_x / 2, -book_extra_y, -wall_support_diameter - book_support_drop_z])
+        rotate([-book_theta, 0, 0]) {
+            difference() {
+                cube([book_x, book_y, book_z]);
 
-                translate([0, 0, exploded * 25]) {
-                    rim_crossbar_front();
-                    rim_crossbar_back();
-                }
+                // part label
+                translate([book_x - 7, deboss_depth, 5])
+                rotate([90, 0, 180])
+                linear_extrude(deboss_depth + fudge)
+                text(
+                    _serial,
+                    size = font_size,
+                    font = font_face,
+                    halign = "left",
+                    valign = "baseline"
+                );
+
             }
 
+            translate([0, -book_support_y, 0])
+            cube([book_x, book_support_y, book_y]);
 
-            translate([support_arm_offset, 0, 0]) {
-                support_arm();
-                // wall_support();
+            for(i = [0 : ridge_count]) {
+                translate([
+                    0,
+                    - i * (ridge_height + ridge_spacing),
+                    0.2
+                ])
+                rotate([45, 0, 0])
+                cube([book_x, ridge_height, ridge_height]);
             }
-            translate([-support_arm_offset, 0, 0]) {
-                support_arm();
-                // wall_support();
-            }
-
-            // // bar between the two drop rods
-            // translate([-support_arm_offset, 0, arm_length - upper_inside_diameter / 2 - arm_y]) 
-            // cube([support_arm_offset * 2, arm_y, upper_inside_diameter / 2]);
         }
+
+        screw_holes(book_support_lower_screws = 1);
     }
 }
 
-// assembly(exploded = 1);
+module book_support_upper() {
+    _serial = "WM 0121-07D";
+
+    difference() {
+        // setup the same the the (lower) book support
+        translate([-book_x / 2, -book_extra_y, -wall_support_diameter - book_support_drop_z])
+        rotate([-book_theta, 0, 0])
+        // now move relative to the (lower) book support
+        translate([book_x / 2, book_y, book_support_drop_z]) {
+            // right arm
+            translate([support_arm_offset - arm_x / 2, 0, 0])
+            cube([arm_x, book_y, book_upper_z]);
+
+            translate([support_arm_offset - arm_x / 2, -book_y, upper_support_signle_z])
+            cube([arm_x, book_y, book_upper_z - upper_support_signle_z]);
+
+            // left arm
+            translate([-support_arm_offset - arm_x / 2, 0, 0])
+            difference() {
+                cube([arm_x, book_y, book_upper_z]);
+
+                // part label
+                translate([arm_x / 2, 0 + deboss_depth, upper_support_signle_z + 5])
+                rotate([90, 270, 180])
+                linear_extrude(deboss_depth + fudge)
+                text(
+                    _serial,
+                    size = font_size,
+                    font = font_face,
+                    halign = "left",
+                    valign = "center"
+                );
+            }
+
+            translate([-support_arm_offset - arm_x / 2, -book_y, upper_support_signle_z])
+            cube([arm_x, book_y, book_upper_z - upper_support_signle_z]);
+
+            // tranverse
+            translate([-support_arm_offset - arm_x / 2, -book_y, book_upper_z - arm_x])
+            cube([support_arm_offset * 2 + arm_x, book_y * 2, arm_x]);
+        }
+
+        screw_holes(book_support_upper_screws = 1, book_support_lower_screws = 1);
+    }
+}
+
+
+
+module assembly_bin(exploded = 0) {
+    translate([0, -exploded * 25, 0]) {
+        rim_end_left();
+        rim_end_right();
+
+        translate([0, 0, exploded * 25]) {
+            rim_crossbar_front();
+            rim_crossbar_back();
+        }
+    }
+
+    translate([support_arm_offset, 0, 0]) {
+        support_arm(for_book_support = 0);
+        // wall_support();
+    }
+    support_arm();
+    translate([-support_arm_offset, 0, 0]) {
+        support_arm(for_book_support = 0);
+        // wall_support();
+    }
+
+    // // bar between the two drop rods
+    // translate([-support_arm_offset, 0, arm_length - upper_inside_diameter / 2 - arm_y]) 
+    // cube([support_arm_offset * 2, arm_y, upper_inside_diameter / 2]);
+}
+
+
+module assembly_book(exploded = 0) {
+    color("darkviolet")
+    translate([0, -exploded * 2 * 25, 0])
+    book_support();
+
+    color("gold")
+    translate([0, -exploded * 25, 0])
+    book_support_upper();
+
+    color("lightseagreen")
+    translate([support_arm_offset, 0, 0]) {
+        support_arm(for_book_support = 1);
+        // wall_support();
+    }
+    color("lightseagreen")
+    translate([-support_arm_offset, 0, 0]) {
+        support_arm(for_book_support = 1);
+        // wall_support();
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+
+
+// assembly_bin(exploded = 1);
+assembly_book(exploded = 1);
 
 // by parts
-support_arm();
-// rim_end_left();
-// rim_end_right();
-// rim_crossbar_front();
-// rim_crossbar_back();
+// support_arm(for_book_support = 0);  // 0121-01
+// rim_end_left();  // 0121-02
+// rim_end_right();  // 0121-03
+// rim_crossbar_front();  // 0121-04
+// rim_crossbar_back();  // 0121-05
 
 // rim_straight_only();
+
+// book_support();  // 0121-06
+// book_support_upper();  // 0121-07
+// support_arm(for_book_support = 1);  // 0121-08
 
 
 // m3_screw(length = 10, overhangs = 1);
 
 // screw_holes(
-//     wall = 1,
+//     // wall = 1,
 //     back_rim = 1,
-//     front_rim = 1
+//     // front_rim = 1,
+//     book_support_upper_screws = 1,
 // );
+
+// book_support_upper();
+// book_support();
