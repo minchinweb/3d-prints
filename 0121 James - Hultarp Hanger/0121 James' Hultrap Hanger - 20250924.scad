@@ -24,17 +24,16 @@
 //         -- 18:24 - 19:30 -- design of wall supports for book support -- 1h06
 //         -- 19:30 - -- printing prep and printing
 // Oct 21  -- 13:17-1401 -- prep models for printing
-//         -- printing 3x1hr
+//         -- printing 3 x 1hr
 //         -- 19:45-20:20 -- calibration cube for screw and nut holes
-//         -- printing 0h20hr
+//         -- printing 2 x 0h20hr
+//         -- create model E with updated nut sizing
+//         -- printing 0h30
 
 
 // TODO:
 // - add top crossbar?
-// - add screws to back of wall supports?
 // - pull hardware dimensions out into a separate library
-// - current (B print) nut slots are too wide, and so the nuts spin in the slot
-// - consider strengthening fillet on hangers
 
 // rod OD is ~19.4mm
 //     - add felt to inside of hanging
@@ -117,13 +116,15 @@ m3_nut_height_slip_fit = 2.5;
 // M3 clear outside diameter (nominal diameter of 3 mm)
 m3_od = 3.5;  // at 3.5mm, it could be tighter, but the play isn't excessive
 // M3 wafer head diamter
-m3_head_od = 5.8 + 0.25;  // was 6.9mm, but had too much play
+// turns out my M3x8 screws have smaller heads than my M3x16 screws!
+// M3x8 works reasonably well with 6.05mm, but M3x16 needs ~7.2
+m3_head_od = 7.0;  // was 6.9mm, but had too much play
 // M3 water head height
 m3_head_z = 0.80;  // was 0.76mm, nominally 0.7mm, set to multiple of layer height
-// M3 nut across the "flats"
-m3_nut_flats = 5.6;  // nominally 5.35mm and was 5.4mm, but gives no clearance; if 6.2mm the nut can turn freely
-// M3 nut width clearance
-m3_nut_z = 2.6;  // measured at 2.28mm, was 2.5mm and could be a hair looser
+// M3 nut across the "flats" (5.6 for PLA)
+m3_nut_flats = 5.7;  // nominally 5.35mm and was 5.4mm, but gives no clearance; if 6.2mm the nut can turn freely
+// M3 nut width clearance (2.6 for PLA)
+m3_nut_z = 2.7;  // measured at 2.28mm, was 2.5mm and could be a hair looser
 // circle faces for screw shaft (double for head)
 screw_fn = 12;
 
@@ -488,7 +489,7 @@ module rim() {
 
 module support_arm(for_book_support = 0) {
     // single support arm
-    _serial =  (for_book_support == 0) ? "WM 0121-01D" : "WM 0121-08D";
+    _serial =  (for_book_support == 0) ? "WM 0121-01E" : "WM 0121-08E";
     //                                   ^ bin arm       ^ book arm   
 
     difference() {
@@ -707,7 +708,7 @@ module rim_ends() {
 }
 
 module rim_end_left() {
-    _serial = "WM 0121-02D";
+    _serial = "WM 0121-02E";
     
     render() {
     difference() {
@@ -740,7 +741,7 @@ module rim_end_left() {
 }
 
 module rim_end_right(){
-    _serial = "WM 0121-03D";
+    _serial = "WM 0121-03E";
 
     render() {
     difference() {
@@ -783,7 +784,7 @@ module rim_crossbars() {
 }
 
 module rim_crossbar_front() {
-    _serial = "WM 0121-04D";
+    _serial = "WM 0121-04E";
 
     difference() {
         rim_crossbars();
@@ -816,7 +817,7 @@ module rim_crossbar_front() {
 module rim_crossbar_back() {
     // for some reason, this includes the text from the rim ends
     // can just use a second x04 part
-    _serial = "WM 0121-05D";
+    _serial = "WM 0121-05E";
 
     difference() {
         rim_crossbars();
@@ -847,7 +848,7 @@ module rim_crossbar_back() {
 }
 
 module book_support() {
-    _serial = "WM 0121-06D";
+    _serial = "WM 0121-06E";
 
     difference() {
         translate([-book_x / 2, -book_extra_y, -wall_support_diameter - book_support_drop_z])
@@ -888,7 +889,7 @@ module book_support() {
 }
 
 module book_support_upper() {
-    _serial = "WM 0121-07D";
+    _serial = "WM 0121-07E";
 
     difference() {
         // setup the same the the (lower) book support
@@ -938,7 +939,7 @@ module clearance_test() {
     // creates a small cube with a recessed screw hole and nut slot, to confirm
     // clearances
     
-    _serial = "0121-D";
+    _serial = "0121-E";
     _countersunk_depth = m3_head_z;
     _countersink_diameter = m3_head_od;
     _nut_flats = m3_nut_flats;
@@ -1049,9 +1050,9 @@ module assembly_book(exploded = 0) {
 
 
 // assembly_bin(exploded = 1);
-// assembly_book(exploded = 1);
+assembly_book(exploded = 1);
 
-clearance_test();
+// clearance_test();
 
 // by parts
 // support_arm(for_book_support = 0);  // 0121-01
