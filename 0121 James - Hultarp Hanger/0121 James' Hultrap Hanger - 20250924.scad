@@ -23,6 +23,10 @@
 // Oct 18  -- 15:00 - 16:07 -- design of upper book support -- 1h07
 //         -- 18:24 - 19:30 -- design of wall supports for book support -- 1h06
 //         -- 19:30 - -- printing prep and printing
+// Oct 21  -- 13:17-1401 -- prep models for printing
+//         -- printing 3x1hr
+//         -- 19:45-20:20 -- calibration cube for screw and nut holes
+//         -- printing 0h20hr
 
 
 // TODO:
@@ -930,6 +934,67 @@ module book_support_upper() {
 }
 
 
+module clearance_test() {
+    // creates a small cube with a recessed screw hole and nut slot, to confirm
+    // clearances
+    
+    _serial = "0121-D";
+    _countersunk_depth = m3_head_z;
+    _countersink_diameter = m3_head_od;
+    _nut_flats = m3_nut_flats;
+    _nut_z = m3_nut_z;
+
+    // _text_str = str(_serial) + " / CS " + str(_countersunk) + " / nut " + str(_nut_flats) + "x" + str(_nut_z);
+
+    cube_x = 10;
+    cube_y = 30;
+    cube_z = 15;
+
+    difference() {
+        cube([cube_x, cube_y, cube_z]);
+
+        translate([cube_x / 2, 0, cube_z / 2])
+        rotate([270, 0, 0]) {
+            m3_screw(length = cube_y * 1.1, overhangs = 0);
+
+            m3_nut_slot(shaft_offset = _nut_z);
+        }
+
+        translate([cube_x / 2, cube_y - 1, cube_z - 1])
+        rotate([0, 0, 270])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "center"
+        );
+
+        translate([deboss_depth, cube_y - 1, cube_z - 2 - 0 * font_size * 1.1])
+        rotate([90, 0, 270])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            str("CS ", str(_countersink_diameter), "x", str(_countersunk_depth)),
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "top"
+        );
+
+        translate([deboss_depth, cube_y - 1, cube_z - 3 - 1 * font_size * 1.1])
+        rotate([90, 0, 270])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            str("nut ", str(_nut_flats), "x", str(_nut_z)),
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "top"
+        );
+    }
+}
+
 
 module assembly_bin(exploded = 0) {
     translate([0, -exploded * 25, 0]) {
@@ -984,7 +1049,9 @@ module assembly_book(exploded = 0) {
 
 
 // assembly_bin(exploded = 1);
-assembly_book(exploded = 1);
+// assembly_book(exploded = 1);
+
+clearance_test();
 
 // by parts
 // support_arm(for_book_support = 0);  // 0121-01
