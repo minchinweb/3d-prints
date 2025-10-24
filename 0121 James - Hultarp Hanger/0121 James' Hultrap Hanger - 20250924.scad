@@ -25,10 +25,12 @@
 //         -- 19:30 - -- printing prep and printing
 // Oct 21  -- 13:17-1401 -- prep models for printing
 //         -- printing 3 x 1hr
-//         -- 19:45-20:20 -- calibration cube for screw and nut holes
+//         -- 19:45-20:20 -- calibration cube for screw and nut holes -- 0h35 
 //         -- printing 2 x 0h20hr
 //         -- create model E with updated nut sizing
-//         -- printing 0h30
+//         -- printing 0h30 + ~~3h~~ 0h30
+// Oct 22  -- printing 1h30 + 2 x 1h30 + 3hr
+//         -- assembly
 
 
 // TODO:
