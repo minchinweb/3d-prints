@@ -12,7 +12,7 @@ pointer_depth = 2; // in mm
 // How wide should the marking lines be?
 line_width = 1.5;
 // Serial number for this print version
-serial = "0131-02A";
+serial = "0131-02B";
 
 OVERSIZE_FUDGE_FACTOR = 2;
 
@@ -59,7 +59,7 @@ module clipped_ring() {
         // cylinder(d = my_d, h = text_depth + fudge);
 
         // part label
-        translate([0, 5, -fudge])
+        translate([0, 10, -fudge])
         rotate([0, 180, 0])
         linear_extrude(deboss_depth + fudge)
         text(
@@ -116,9 +116,9 @@ module mark_lines() {
 }}
 
 module mark_supports() {
-    support_width = 20;
-    drop_support_legnth = 20;
-    support_angle = 32;  // ideally, this should be straight across the ring
+    support_width = 26;
+    drop_support_legnth = 18;
+    support_angle = 37.5;  // ideally, this should be straight across the ring
 
     color("skyblue") {
 
