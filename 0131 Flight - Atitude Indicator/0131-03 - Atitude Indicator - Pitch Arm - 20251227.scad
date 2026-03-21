@@ -12,6 +12,9 @@ text_depth = 1; // in mm
 line_width = 1.5; // A - 1; B - 1.5
 // Serial number for this print version
 serial = "0131-03A";
+// Serial for arm support only
+// serial = "0131-04B";
+
 
 OVERSIZE_FUDGE_FACTOR = 2;
 
@@ -37,8 +40,8 @@ fudge = 0.01;
 // ring_width = (altitude_indicator_outer_ring_d - altitude_indicator_inner_ring_d) / 2;
 
 module pitch_arm_base() {
-    rotate([0, 0, 90 * 0]) 
-    translate([-110 * 0, -129 * 0, 0])
+    // rotate([0, 0, 0]) 
+    // translate([0, 0, 0])
     import(str(FILE_ROOT, "/", "Pitch Arm (Doohicky).stl"));
 }
 
@@ -327,10 +330,10 @@ module earth_base_arm() {
 // clipped_base();
 // mark_lines();
 
-// color("yellow")
-clipped_mark_lines();
+// // color("yellow")
+// clipped_mark_lines();
 
-sky_base_front();
-earth_base_front();
+// sky_base_front();
+// earth_base_front();
 sky_base_arm();
 earth_base_arm();
