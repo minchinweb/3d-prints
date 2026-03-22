@@ -12,7 +12,7 @@ text_depth = 1; // in mm
 // How wide should the marking lines be?
 line_width = 1.5; // A - 1; B - 1.5
 // Serial number for this print version
-serial = "0131-05A";
+serial = "0131-05B";
 
 
 
@@ -28,10 +28,13 @@ magnet_depth = 2.3;
 
 y_back_of_display = 10 + 13 + 4; // mm
 
+SHAFT_LARGER = 0.2;
+DRIVE_WIDER = -0.1;
+
 font_face = "Aldo";
 font_size = 5;
 // should be multiple of layer height
-deboss_depth = 1;
+deboss_depth = 0.7;
 fudge = 0.01;
 
 
@@ -62,12 +65,38 @@ module clipped_internals() {
         union() {
             internals_base();
 
+            // magnet un-hole
             translate([0, 10+47.464-5/2-0.3, 30.24+3.5/2]) 
             cube([5.5, 5.22, 5.5], center=true);
 
+            // (back) drive shaft un-hole
+            // expanded shaft
+            translate([0, 60, 0])
+            rotate([90, 0, 0])
+            cylinder(d = 6, h = 4.9);
+
+
+            // support wings
+            rotate([0, -90, 0])
+            translate([0, 0, 23]) 
+            linear_extrude(3) {
+                polygon(points = [[27, 56], [10, 39], [10, 56]]);
+                polygon(points = [[-27, 56], [-10, 39], [-10, 56]]);
+            }
+
+            // top face edge support fins
+            /// top
+            rotate([90, 0, 0])
+            translate([0, 24.125 - 1, -56])
+            fin();
+
+            /// bottom
+            rotate([-90, 0, 0])
+            translate([0, 24.125 - 1, 23])
+            fin();
         }
 
-        // knut trap
+        // nut trap
         translate([-outer_arm_width / 2 - 2.7, 22.3, 0])
         rotate([0, 90, 0])
         cylinder(d = magnet_d, h = magnet_depth + 5, $fn=24);
@@ -97,7 +126,7 @@ module clipped_internals() {
             cylinder (d=magnet_d, h=pin_head_z, $fn=24);
             cylinder (d=pin_hole_od, h=8, $fn=24);
 
-            // overhands
+            // overhangs
             intersection() {
                 translate([-pin_hole_od / 2, -magnet_d / 2, pin_head_z])
                 cube([pin_hole_od, magnet_d, layer_height * overhangs]);
@@ -138,6 +167,11 @@ module clipped_internals() {
             }
 
         }
+
+        // expanded shaft
+        translate([0, 65, 0])
+        rotate([90, 0, 0])
+        drive_shaft();
 
         // part label
         translate([23.25 + 3 - deboss_depth, 45, -17.5 - 6])
@@ -264,6 +298,37 @@ module m25_nut_slot(shaft_offset = 0) {
     }
 }
 
+module drive_shaft() {
+    intersection() {
+        cylinder(h = 25, d = 5.020 + SHAFT_LARGER, $fn=36);
+
+        translate([
+            -(5.020 + SHAFT_LARGER) / 2,
+            -(3.520 + DRIVE_WIDER) / 2,
+            -fudge
+        ]) 
+        cube([5.020 + SHAFT_LARGER, 3.520 + DRIVE_WIDER, 25 + 2*fudge]);
+    }
+}
+
+module fin() {
+    FIN_LENGTH = 34;
+
+    difference() {
+        union() {
+            translate([-9.5 /2, -7 / 2, 0])
+            cube([7.5 + 2, 5 + 1, FIN_LENGTH]);
+
+            translate([-20 / 2, 1.5, 0])
+            cube([20, 1, FIN_LENGTH]);
+
+        }
+
+        translate([-7.5 / 2, -5 / 2, -fudge]) 
+        cube([7.5, 5 + fudge, FIN_LENGTH + 2* fudge]);
+    }
+}
+
 
 module clearance_test() {
     // creates a small cube with a recessed screw hole and nut slot, to confirm
@@ -326,8 +391,66 @@ module clearance_test() {
     }
 }
 
+module clearance_test_shaft() {
+    // creates a small cube with a shaft slot, to confirm clearances
+    
+    _serial = "0131-5F";
+
+    // _text_str = str(_serial) + " / CS " + str(_countersunk) + " / nut " + str(_nut_flats) + "x" + str(_nut_z);
+
+    cube_x = 10;
+    cube_y = 30;
+    cube_z = 15;
+
+    difference() {
+        cube([cube_x, cube_y, cube_z]);
+
+        translate([cube_x / 2, cube_y/2, -fudge])
+        rotate([0, 0, 0]) {
+            drive_shaft();
+        }
+
+        // translate([cube_x / 2, cube_y - 1, cube_z - 1])
+        // rotate([0, 0, 270])
+        // linear_extrude(deboss_depth + fudge)
+        // #text(
+        //     _serial,
+        //     size = font_size,
+        //     font = font_face,
+        //     halign = "left",
+        //     valign = "center"
+        // );
+
+        translate([deboss_depth, cube_y - 1, cube_z - 2 - 0 * font_size * 1.1])
+        rotate([90, 0, 270])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            _serial,
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "top"
+        );
+
+        translate([deboss_depth, cube_y - 1, cube_z - 3 - 1 * font_size * 1.1])
+        rotate([90, 0, 270])
+        linear_extrude(deboss_depth + fudge)
+        text(
+            // str("nut ", str(_nut_flats), "x", str(_nut_z)),
+            str("+", str(SHAFT_LARGER), " +", str(DRIVE_WIDER)),
+            size = font_size,
+            font = font_face,
+            halign = "left",
+            valign = "top"
+        );
+    }
+}
+
 
 // clearance_test();
+// drive_shaft();
+// clearance_test_shaft();
+// fin();
 
 // internals_base();
 // clipped_internals();
