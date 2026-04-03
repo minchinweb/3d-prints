@@ -11,7 +11,7 @@ font_size = 5;
 
 // [ Base plate ]
 base_plate_diameter = 230;
-base_plate_thickness = 0.7;
+base_plate_thickness = 5;
 base_plate_center_hole_diameter = 6.25;  // about 1/4"
 tube_base_inset_side = 180;
 tube_base_inset_ridge_height = 10;
@@ -226,34 +226,48 @@ module seeding_gear() {
 }
 
 module drive_gear() {
-    _serial = "0137-03A";
+    _serial = "0137-03B";
 
     difference() {
+        // union() {
+            color("pink")
+            spur_gear(
+                circular_pitch,
+                drive_gear_teeth,
+                seeding_gear_thickness,
+                pressure_angle = pressure_angle,
+                // shaft_diam = seeding_gear_shaft_diameter
+            );
+            
+            // serial
+            // translate([10, 0, base_plate_thickness / 2])
+            // rotate([0, 0 ,90])
+            // linear_extrude(deboss_depth + 0.01)
+            // text(
+            //     _serial,
+            //     size = font_size,
+            //     font = font_face,
+            //     halign = "center",
+            //     valign = "baseline"
+            // );
 
-    difference() {
-        spur_gear(
-            circular_pitch,
-            drive_gear_teeth,
-            seeding_gear_thickness,
-            pressure_angle = pressure_angle,
-            // shaft_diam = seeding_gear_shaft_diameter
-        );
+
+        // translate([0, 0, base_plate_thickness * 2])
+        // rotate([0, 180, 0])
+        // #cylinder(d = 5, h = 15);
+
+        translate([0, 0,  - base_plate_thickness / 2])
+        rotate([0, 0, 0])
+        cube([base_plate_thickness, 2, 28], center=true);
+
+        translate([0, 0,  - base_plate_thickness / 2])
+        rotate([0, 0, 90])
+        cube([base_plate_thickness, 2, 28], center=true);
+
     }
 
-        // serial
-        translate([10, 0, 0.2])
-        rotate([0, 0 ,90])
-        linear_extrude(deboss_depth + 0.01)
-        text(
-            _serial,
-            size = font_size,
-            font = font_face,
-            halign = "center",
-            valign = "baseline"
-        );
-    }
-
-    translate([0, 0, -seeding_gear_thickness / 2])
+    color("cornflowerblue")
+    translate([0, 0, 0])
     cylinder(d = base_plate_center_hole_diameter, h = drive_gear_shaft_diameter, $fn=36);
 
 }
@@ -323,11 +337,44 @@ module v2() {
     }
 }
 
+module v3() {
+
+    _serial = "0137-02C";
+    seeding_gear();
+
+    difference() {
+        union() {
+            intersection() {
+                _base_plate();
+
+                cylinder(d = seeding_gear_diameter - 10, h = tube_base_inset_ridge_height * 2);
+            }
+
+            translate([0, tube_base_inset_side/2 + font_size, base_plate_thickness / 2 - deboss_depth * 0])
+            rotate([0,0,0])
+            linear_extrude(deboss_depth+ 0.01)
+            text(
+                _serial,
+                size = font_size,
+                font = font_face,
+                halign = "center",
+                valign = "baseline"
+            );
+        }
+
+        translate([0, 0, -0.1])
+        cylinder(d = base_plate_center_hole_diameter, h = 10);
+
+    }
+
+}
 
 // v2();
 // seeding_gear();
 // translate([base_plate_diameter / 2 + drive_gear_diameter / 2, 0, 0])
-drive_gear();
+// drive_gear();
 
 // translate([-base_plate_diameter / 2 - drive_gear_diameter / 2, 0, 0])
-// drive_gear();
+drive_gear();
+
+// v3();
