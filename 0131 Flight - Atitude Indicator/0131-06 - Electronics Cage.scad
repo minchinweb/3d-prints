@@ -3,14 +3,14 @@
 include <BOSL2/std.scad>
 include <BOSL2/screws.scad>
 
-serial = "WM 0131-06A";
+serial = "WM 0131-06B";
 serial_2 = "2026-04-03";
 
 between_posts = 62.862;
-insert_hole_diameter = 2.159*2;
+insert_hole_diameter = 2.159*2 - 0.3;
 insert_holes_xy = 62.862;  // distance between insert pins
-driver_board_x = 29.6;
-driver_board_y = 26.6;
+driver_board_x = 30.4;
+driver_board_y = 26.3;
 driver_board_z_offset = 5;
 driver_board_hole_diameter = 3;  // M3 hardware
 // wire count:
@@ -40,8 +40,8 @@ insert_pin_fn = 24;
 header_hole_x = 37;
 header_hole_y = 22;
 
-header_x = header_x_pins * header_pitch;
-header_y = header_y_pins * header_pitch;
+header_x = header_x_pins * header_pitch + 0.2;
+header_y = header_y_pins * header_pitch + 0.3;
 
 clear_z = max(header_z + header_z_clearance, stepper_motor_z);
 
@@ -207,7 +207,7 @@ module pin() {
     cylinder(d = insert_hole_diameter - 0.1, h = insert_hole_extra_z + clear_z + plate_thickness, $fn = insert_pin_fn);
 
     translate([0, 0, insert_hole_extra_z + clear_z + plate_thickness]) 
-    cylinder(d1 = insert_hole_diameter - 0.1, d2 = 0, h = insert_hole_extra_z / 2, $fn = insert_pin_fn);
+    cylinder(d1 = insert_hole_diameter - 0.1, d2 = 0.8, h = insert_hole_extra_z / 2 - 0.4, $fn = insert_pin_fn);
 }
 
 module driver_board_offset_pin() {
