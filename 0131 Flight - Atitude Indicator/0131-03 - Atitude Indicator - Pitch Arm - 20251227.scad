@@ -5,6 +5,8 @@
 //
 // William Minchin -- 2025-12-21 -- Print 0131C
 
+// brace for the arm near the bottom
+
 FILE_ROOT = "D:/Code/The-Cessna-172-Project-V3/Section 2 - Component Library and Structure/2-5 Instruments/6-PACK_Attitude Indicator/V2 STLs";
 // Print the text this deep (to avoid back bleed)
 text_depth = 1; // in mm
@@ -327,6 +329,62 @@ module earth_base_arm() {
     }
 }
 
+
+// ---------------------------------
+// brace for arm (if they break after printing)
+
+pitch_arm_width = 8;
+pitch_arm_thickness = 2.5;
+brace_length = 10;
+brace_wall_thickness = 2;
+brace_inner_gap = 0.1;
+brace_serial = "D";  //  0131-07
+
+module base_brace(my_length) {
+    difference() {
+        cube([
+            my_length,
+            pitch_arm_width + 2 * brace_wall_thickness + 2 * brace_inner_gap,
+            pitch_arm_thickness + brace_wall_thickness + brace_inner_gap
+        ]);
+
+        translate([-fudge, brace_wall_thickness, -fudge]) 
+        cube([
+            my_length + 2 * fudge,
+            pitch_arm_width + 2 * brace_inner_gap,
+            pitch_arm_thickness + brace_inner_gap + fudge
+        ]);
+
+        #translate([
+            my_length / 2,
+            (pitch_arm_width + 2 * brace_wall_thickness + 2 * brace_inner_gap) / 2,
+            pitch_arm_thickness + brace_wall_thickness + brace_inner_gap - 0.4
+        ]) 
+        linear_extrude(0.4 + fudge)
+        text(
+            brace_serial,
+            size = font_size,
+            font = font_face,
+            halign = "center",
+            valign = "center"
+        );
+    }
+}
+
+module short_brace() {
+    brace_length = 10;
+    base_brace(my_length = brace_length);
+}
+
+module long_brace() {
+    brace_length = 25;
+    base_brace(my_length = brace_length);
+}
+
+
+// ---------------------------------
+
+
 // clipped_base();
 // mark_lines();
 
@@ -335,5 +393,9 @@ module earth_base_arm() {
 
 // sky_base_front();
 // earth_base_front();
-sky_base_arm();
-earth_base_arm();
+// sky_base_arm();
+// earth_base_arm();
+
+
+short_brace();
+// long_brace();
