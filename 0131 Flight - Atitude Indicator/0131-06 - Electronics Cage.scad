@@ -1,9 +1,11 @@
 // "Back board" for wire connections and mounting controller boards
 
+// TODO: Add "thru holes" to inner cage (currently drilling them)
+
 include <BOSL2/std.scad>
 include <BOSL2/screws.scad>
 
-serial = "WM 0131-06B";
+serial = "WM 0131-06C";
 serial_2 = "2026-04-03";
 
 between_posts = 62.862;
@@ -11,7 +13,8 @@ insert_hole_diameter = 2.159*2 - 0.3;
 insert_holes_xy = 62.862;  // distance between insert pins
 driver_board_x = 30.4;
 driver_board_y = 26.3;
-driver_board_z_offset = 5;
+driver_board_z_offset_above = 3;
+driver_board_clearance = 12;  // topside clearance needed for ICs
 driver_board_hole_diameter = 3;  // M3 hardware
 // wire count:
 //  - 2x4 for stepper motors
@@ -26,6 +29,8 @@ header_z = 14;
 header_z_clearance = 14;  // beyond the back of the header
 stepper_motor_z = 19;
 plate_thickness = 2;
+inner_thru_hole_x = 26 / 2;
+inner_thru_hole_y = 73 / 2;
 
 fudge = 0.01;
 
@@ -40,41 +45,116 @@ insert_pin_fn = 24;
 header_hole_x = 37;
 header_hole_y = 22;
 
-header_x = header_x_pins * header_pitch + 0.2;
-header_y = header_y_pins * header_pitch + 0.3;
+header_corner_relief_diameter = 0.5;
 
-clear_z = max(header_z + header_z_clearance, stepper_motor_z);
+header_x = header_x_pins * header_pitch + 0.25;
+header_y = header_y_pins * header_pitch + 0.35;
+
+driver_board_z_offset = driver_board_z_offset_above + plate_thickness;
+
+clear_z = max(
+    header_z + header_z_clearance,
+    stepper_motor_z,
+    driver_board_z_offset + 1 + driver_board_clearance + stepper_motor_z,
+);
 
 module main() {
     difference() {
-        // main backer plate
-        linear_extrude(height = plate_thickness)
-        rect([80, 80], chamfer=10);
+        union() {
+            difference() {
+                // main backer plate
+                linear_extrude(height = plate_thickness)
+                rect([80, 80], chamfer=10);
+
+                // under driver board supports
+                translate([9, -22, -fudge])
+                driver_board_support_thru_holes();
+
+                translate([9, 22, -fudge])
+                driver_board_support_thru_holes();
+            }
+
+            // driver board supports
+            translate([9, -22, 0])
+            driver_board_support();
+
+            translate([9, 22, 0])
+            driver_board_support();
+
+            // header support
+            translate([-header_hole_x - plate_thickness / 2, header_hole_y - plate_thickness / 2, 0]) {
+                difference() {
+                    cube([header_y + plate_thickness, header_x + plate_thickness, header_z]);
+
+                    translate([plate_thickness / 2, plate_thickness / 2, -fudge])
+                    cube([header_y, header_x, header_z + 2 * fudge]);
+                }
+
+                translate([0, 0, header_z])
+                difference() {
+                    cube([header_y + plate_thickness, header_x + plate_thickness, plate_thickness / 2]);
+
+                    translate([plate_thickness / 2, plate_thickness / 2 + 0.5, -fudge])
+                    cube([header_y, header_x - 1, plate_thickness + 2 * fudge]);
+                }
+            }
+
+            // header to alighnment pin
+            translate([-(insert_holes_xy + insert_hole_diameter + plate_thickness)/2, insert_holes_xy/2 - 4, 0])
+            cube([insert_hole_diameter + plate_thickness, 4, header_z + plate_thickness / 2]);
+        }
 
         // through holes
+        /// header
         translate([-header_hole_x, header_hole_y, -fudge])
         cube([header_y, header_x, plate_thickness + 2 * fudge]);
 
-        translate([insert_holes_xy/2, insert_holes_xy/2 - 8, -fudge])
+        /// holes to inner layer
+        translate([inner_thru_hole_x, inner_thru_hole_y, -fudge])
         cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
 
-        translate([insert_holes_xy/2, -insert_holes_xy/2 + 8, -fudge])
+        translate([inner_thru_hole_x, -inner_thru_hole_y, -fudge])
         cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
 
-        translate([-insert_holes_xy/2 + 8, insert_holes_xy/2, -fudge])
+        translate([-inner_thru_hole_x, inner_thru_hole_y, -fudge])
         cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
 
-        translate([-insert_holes_xy/2, -insert_holes_xy/2 + 8, -fudge])
+        translate([-inner_thru_hole_x, -inner_thru_hole_y, -fudge])
         cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
 
-        translate([-insert_holes_xy/2 + 8, -insert_holes_xy/2, -fudge])
+        translate([inner_thru_hole_y, inner_thru_hole_x, -fudge])
         cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
+
+        translate([inner_thru_hole_y, -inner_thru_hole_x, -fudge])
+        cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
+
+        translate([-inner_thru_hole_y, inner_thru_hole_x, -fudge])
+        cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
+
+        translate([-inner_thru_hole_y, -inner_thru_hole_x, -fudge])
+        cylinder(d = 3.5, h = plate_thickness + 2 * fudge, $fn=12);
+
+
+        // header corner releif
+        translate([-header_hole_x, header_hole_y, -fudge]) {
+            translate([0, 0, 0])
+            cylinder(d = header_corner_relief_diameter, h = header_z + fudge, $fn=12);
+
+            translate([0, header_x, 0])
+            cylinder(d = header_corner_relief_diameter, h = header_z + fudge, $fn=12);
+
+            translate([header_y, 0, 0])
+            cylinder(d = header_corner_relief_diameter, h = header_z + fudge, $fn=12);
+
+            translate([header_y, header_x, 0])
+            cylinder(d = header_corner_relief_diameter * 1, h = header_z + fudge, $fn=12);
+        }
 
         // labels
         translate([0, 0, deboss_depth])
         rotate([180, 0, 180])
         linear_extrude(height = deboss_depth + fudge) {
-            translate([-28, -34, 0]) {
+            translate([-28, -30, 0]) {
                 text(
                     serial,
                     size = font_size,
@@ -109,6 +189,30 @@ module main() {
             //     halign = "right",
             //     valign = "top",
             // );
+
+            translate([header_hole_x - header_y - 2.5, header_hole_y + header_x - header_pitch / 2 + 1, 0])
+            rect([3, 0.8], spin=-45);
+
+            translate([header_hole_x - header_y - 4, header_hole_y + header_x - header_pitch / 2 + 2.5, 0])
+            text(
+                "pitch",
+                size = font_size,
+                font = font_face,
+                halign = "right",
+                valign = "center",
+            );
+
+            translate([header_hole_x - header_y - 2.5, header_hole_y + header_x - header_pitch * 3 / 2 - 1, 0])
+            rect([3, 0.8], spin=45);
+
+            translate([header_hole_x - header_y - 4, header_hole_y + header_x - header_pitch * 3 / 2 - 2.5, 0])
+            text(
+                "roll",
+                size = font_size,
+                font = font_face,
+                halign = "right",
+                valign = "center",
+            );
 
             translate([header_hole_x - 1.5 * header_pitch, 21 - font_size * 1.3 * 0.5, 0])
             rect([0.8, font_size * 1.3]);
@@ -170,35 +274,6 @@ module main() {
     translate([-insert_holes_xy/2, -insert_holes_xy/2, 0]) 
     pin();
 
-    // driver board supports
-    translate([9, -22, plate_thickness])
-    driver_board_support();
-
-    translate([9, 22, plate_thickness])
-    driver_board_support();
-
-    // header support
-    translate([-header_hole_x - plate_thickness / 2, header_hole_y - plate_thickness / 2, plate_thickness]) {
-        difference() {
-            cube([header_y + plate_thickness, header_x + plate_thickness, header_z]);
-
-            translate([plate_thickness / 2, plate_thickness / 2, -fudge])
-            cube([header_y, header_x, header_z + 2 * fudge]);
-        }
-
-        translate([0, 0, header_z])
-        difference() {
-            cube([header_y + plate_thickness, header_x + plate_thickness, plate_thickness / 2]);
-
-            translate([plate_thickness / 2, plate_thickness / 2 + 0.5, -fudge])
-            cube([header_y, header_x - 1, plate_thickness + 2 * fudge]);
-        }
-    }
-
-    // header to alighnment pin
-    translate([-(insert_holes_xy + insert_hole_diameter + plate_thickness)/2, insert_holes_xy/2 - 4, plate_thickness])
-    cube([insert_hole_diameter + plate_thickness, 4, header_z + plate_thickness / 2]);
-
 
 }
 
@@ -207,7 +282,7 @@ module pin() {
     cylinder(d = insert_hole_diameter - 0.1, h = insert_hole_extra_z + clear_z + plate_thickness, $fn = insert_pin_fn);
 
     translate([0, 0, insert_hole_extra_z + clear_z + plate_thickness]) 
-    cylinder(d1 = insert_hole_diameter - 0.1, d2 = 0.8, h = insert_hole_extra_z / 2 - 0.4, $fn = insert_pin_fn);
+    cylinder(d1 = insert_hole_diameter - 0.1, d2 = insert_hole_diameter / 2, h = insert_hole_diameter / 2, $fn = insert_pin_fn);
 }
 
 module driver_board_offset_pin() {
@@ -231,6 +306,20 @@ module driver_board_support() {
 
     translate([-driver_board_x/2, -driver_board_y/2, 0]) 
     driver_board_offset_pin();
+}
+
+module driver_board_support_thru_holes() {
+    translate([driver_board_x/2, driver_board_y/2, 0]) 
+    cylinder(d = 3.6, h = plate_thickness + 2 * fudge);
+
+    translate([driver_board_x/2, -driver_board_y/2, 0]) 
+    cylinder(d = 3.6, h = plate_thickness + 2 * fudge);
+
+    translate([-driver_board_x/2, driver_board_y/2, 0]) 
+    cylinder(d = 3.6, h = plate_thickness + 2 * fudge);
+
+    translate([-driver_board_x/2, -driver_board_y/2, 0]) 
+    cylinder(d = 3.6, h = plate_thickness + 2 * fudge);
 }
 
 main();
