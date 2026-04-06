@@ -1,0 +1,122 @@
+{
+  "Name": "Print 0131",
+  "ConfigFiles": [
+    {
+      "Label": "New file",
+      "FileName": null,
+      "ReferenceOnly": false,
+      "EmbedContent": true,
+      "ConfigItems": [
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "6357059b-d04d-42b5-ab24-5212f273d8bf",
+              "Value": "(A:ATTITUDE INDICATOR BANK DEGREES,Degrees)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 0.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "Roll",
+            "Address": "Roll",
+            "InputRev": 360,
+            "TestValue": 500,
+            "OutputRev": 2040,
+            "CompassMode": false,
+            "Acceleration": 800,
+            "Speed": 467,
+            "Type": "Stepper"
+          },
+          "DeviceType": "Stepper",
+          "DeviceName": "Roll",
+          "GUID": "ebb223d7-ed30-48f8-8657-5b375eaaa7ea",
+          "Active": true,
+          "Name": "Roll",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "MobiFlight Mega",
+            "Serial": "SN-9EF-80F"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Interpolation",
+                "Values": {
+                  "-90": -90.0,
+                  "90": 90.0
+                },
+                "Count": 2,
+                "Max": 90.0,
+                "Min": -90.0,
+                "Active": true
+              }
+            ]
+          }
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "26539606-5bbf-4b94-a212-1ecf0d8d3733",
+              "Value": "(A:ATTITUDE INDICATOR PITCH DEGREES,degrees)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 0.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "Pitch",
+            "Address": "Pitch",
+            "InputRev": 360,
+            "TestValue": 500,
+            "OutputRev": 2040,
+            "CompassMode": false,
+            "Acceleration": 800,
+            "Speed": 467,
+            "Type": "Stepper"
+          },
+          "DeviceType": "Stepper",
+          "DeviceName": "Pitch",
+          "GUID": "dd5f7193-f994-4289-9341-83eabbfaeb02",
+          "Active": true,
+          "Name": "Pitch",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "MobiFlight Mega",
+            "Serial": "SN-9EF-80F"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Interpolation",
+                "Values": {
+                  "-35": -35.0,
+                  "35": 35.0
+                },
+                "Count": 2,
+                "Max": 35.0,
+                "Min": -35.0,
+                "Active": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "Sim": "msfs",
+  "Aircraft": [],
+  "Features": {
+    "FSUIPC": false,
+    "ProSim": false
+  },
+  "_version": "0.9"
+}
