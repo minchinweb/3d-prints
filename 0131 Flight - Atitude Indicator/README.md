@@ -35,6 +35,7 @@ Modifications and new design was completed using OpenSCAD, using the
 - add in lighting
 - pin guide for Arduino
 - desk mount
+- spacer for little plane -- plane is 2 mm thick, but the inside gap is 3 mm
 
 
 ## Bill of Materials for Attitude Indicator
@@ -143,4 +144,5 @@ Cost to date (including full packages of screws and several other parts, but
 not including most tools) is ~USD 150.
 
 For printing, don't do supports for the nut traps in the bottom half of the
-main body; I can't get the supports out of the 2 mm holes.
+main body; I can't get the supports out of the 2 mm holes. M3 threads will
+print, but M2 threads don't (with a 0.4 mm nozzle).

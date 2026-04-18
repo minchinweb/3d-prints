@@ -5,7 +5,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/screws.scad>
 
-serial = "0131-09A";
+serial = "0131-09B";
 // serial_2 = "2026-04-03";
 
 FILE_ROOT = "D:/Code/The-Cessna-172-Project-V3/Section 2 - Component Library and Structure/2-5 Instruments/6-PACK_Attitude Indicator/V2 STLs";
@@ -25,8 +25,9 @@ faceplate_z = 9.55;  // from the back to the inside top
 faceplate_inside_z = 7.75;  // from back to top of inside circle
 faceplace_inside_d = 79.6;  // diamter of inside (back) hole
 m2_head_z = 1.87 + 0.23 + 0.296;  // for cap head M2x20 screw; based + clearance + enough to match existing holes
+m2_head_extra_z = 4;  // height/passageway above the screwhead to keep clear
 m2_head_d = 3.60 + 0.3;  // head size (diamter) of M2x20 screw (with clearance)
-m2_d = 2.0 + 0.1;  // bolt diameter, clear (with printing tolerances)
+m2_d = 2.0 + 0.4;  // bolt diameter, clear (with printing tolerances)
 wire_d = 2 + 1;  // diameter of single wire
 
 fudge = 0.01;
@@ -45,6 +46,9 @@ module faceplate_base() {
 
 module holes_to_body() {
         module local_hole() {
+            translate([0, 0, faceplate_z - fudge])
+            cylinder(d = m2_head_d, h = m2_head_extra_z, $fn=24);
+
             translate([0, 0, faceplate_z - m2_head_z])
             cylinder(d = m2_head_d, h = m2_head_z + 2 * fudge, $fn=24);
 
@@ -120,7 +124,7 @@ module clipped_faceplate_base() {
         }
 
         // top labels
-        #translate([0, 0, faceplate_z - deboss_depth * 1])
+        translate([0, 0, faceplate_z - deboss_depth * 1])
         rotate([0, 0, 0])
         linear_extrude(height = deboss_depth + fudge + 1) {
 
