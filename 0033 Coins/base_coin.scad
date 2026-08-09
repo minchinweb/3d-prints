@@ -1,72 +1,10 @@
-/* [General] */
-// coin diamter, in mm. Design at this size
-diameter = 21;
-// thickness of wall around the edge of the coin, in mm
-edge_wall_thickness = 0.35;
-// printer's layer height, in mm
-layer_height = 0.06;
-
-// bas releif depth, in layers
-profile_depth_layers = 12;
-// center thickness, in layers
-base_thickness_layers = 4;
-
-/* [Coin Elements - Bust] */
-// (relative) path to bust image. Assumed to be square dimensions.
-bust_image = "0033B Daniel Sou Noir/Profile A - 300px - 20241027.png";
-// size, in pixels, of bust image
-bust_pixels = 300;
-bust_rotate = 0;
-bust_delta_x = 0;
-bust_delta_y = 0;
-
-/* [Coin Elements - Name] */
-name_image = "0033B Daniel Sou Noir/Name A - Daniel - 20241027.png";
-name_pixels = 300;
-name_rotate = 335;
-name_delta_x = +0.6;
-name_delta_y = 0;
-
-/* [Coin Elements - Year] */
-year_image = "0033B Daniel Sou Noir/Year A - 2024 - 20241027.png";
-year_pixels = 300;
-year_rotate = 315;
-year_delta_x = 0;
-year_delta_y = 0;
-
-/* [Coin Elements - Value] */
-value_image = "0033B Daniel Sou Noir/Value A - sou noir - 20241027.png";
-value_pixels = 300;
-value_rotate = 0;
-value_delta_x = 0;
-value_delta_y = 0;
-
-
-/* [Coin Elements - Reverse] */
-reverse_image = "0033B Daniel Sou Noir/Reverse A - Pegasus - 20241027.png";
-reverse_pixels = 300;
-reverse_rotate = 0;
-reverse_delta_x = 0;
-reverse_delta_y = 0;
-
-
-/* [Rendering] */
-cylinder_faces = 60;
-
-/* [Testing] */
-test_sizes = [16, 17, 18, 19, 21, 23, 24, 25, 27, 28, 31, 32, 38, 40];
-tests = "no";  // ["yes", "no"]
-// offset tests my this, should be greater than largest test size, in mm
-test_offset = 42;
-
-
 //  Create coin
 
-// convert from layers to mm
-profile_depth = profile_depth_layers * layer_height;
-base_thickness = base_thickness_layers * layer_height;
+// sizing / values
+//
+// Sou Noir -- black "metal" -- 21mm
 
-module face_side(
+module _face_side(
     coin_diameter,
     delta_x = 0,
     delta_y = 0,
@@ -74,7 +12,8 @@ module face_side(
     add_base = false,
     add_rim = false,
     add_face = true,
-    add_name = true
+    add_name = true,
+    profile_depth = 1,
 ) {
     master_scale = coin_diameter / diameter;
     bust_xy_scale = coin_diameter / bust_pixels;
@@ -145,7 +84,8 @@ module face_side(
     }
 }
 
-module tails_side(    coin_diameter,
+module _tails_side(
+    coin_diameter,
     delta_x = 0,
     delta_y = 0,
     base_thickness = 0.1,
@@ -153,7 +93,8 @@ module tails_side(    coin_diameter,
     add_rim = false,
     add_reverse = true,
     add_year = true,
-    add_value = true
+    add_value = true,
+    profile_depth = 1,
 ) {
     master_scale = coin_diameter / diameter;
     reverse_xy_scale = coin_diameter / reverse_pixels;
@@ -240,11 +181,13 @@ module tails_side(    coin_diameter,
 }
 
 
-module rim_side (
+module _rim_side (
     coin_diameter,
     delta_x = 0,
     delta_y = 0,
-    add_rim = true
+    add_rim = true,
+    profile_depth = 1,
+    base_thickness = 1,
 ) {
     if (add_rim) {
         rim_height = profile_depth * 2 + base_thickness;
@@ -278,8 +221,10 @@ module rim_side (
 }
 
 
-if (tests == "yes") {
+module test_sizes() {
     echo("** Running tests! **");
+    test_sizes = [16, 17, 18, 19, 21, 23, 24, 25, 27, 28, 31, 32, 38, 40];
+    test_offset = 42;
 
     test_count = len(test_sizes) - 1;
     for (i = [0:test_count]) {
@@ -291,16 +236,69 @@ if (tests == "yes") {
 
         face_side(coin_diameter = test_size, delta_x = test_offset * i);
     }
+}
 
-} else {
-    tails_side(coin_diameter = diameter);
+module base_coin(
+    diameter = 21,  // coin diamter, in mm. Design at this size
+    edge_wall_thickness = 0.35,  // thickness of wall around the edge of the coin, in mm
+    layer_height = 0.06,  // printer's layer height, in mm
+    profile_depth_layers = 12,  // bas releif depth, in layers
+    base_thickness_layers = 4,  // center thickness, in layers
+
+    bust_image = "",  // (relative) path to bust image. Assumed to be square dimensions.
+    bust_pixels = 300,  // size, in pixels, of bust image
+    bust_rotate = 0,
+    bust_delta_x = 0,
+    bust_delta_y = 0,
+
+    name_image = "",
+    name_pixels = 300,
+    name_rotate = 335,
+    name_delta_x = 0,
+    name_delta_y = 0,
+
+    year_image = "",
+    year_pixels = 300,
+    year_rotate = 315,
+    year_delta_x = 0,
+    year_delta_y = 0,
+
+    value_image = "",
+    value_pixels = 300,
+    value_rotate = 0,
+    value_delta_x = 0,
+    value_delta_y = 0,
+
+    reverse_image = "",
+    reverse_pixels = 300,
+    reverse_rotate = 0,
+    reverse_delta_x = 0,
+    reverse_delta_y = 0,
+
+    cylinder_faces = 60, // for rendering
+
+) {
+    profile_depth = profile_depth_layers * layer_height;
+    base_thickness = base_thickness_layers * layer_height;
+
+    _tails_side(
+        coin_diameter = diameter,
+        profile_depth = profile_depth,
+    );
 
     color("red")
     translate(v = [diameter/2, diameter/2, profile_depth - 0.025]) 
     cylinder(h = base_thickness + 0.025 * 2, r = diameter/2);
 
     translate(v = [0, 0, profile_depth + base_thickness]) 
-    face_side(coin_diameter = diameter);
+    _face_side(
+        coin_diameter = diameter,
+        profile_depth = profile_depth,
+    );
 
-    rim_side(coin_diameter = diameter);
+    _rim_side(
+        coin_diameter = diameter,
+        profile_depth = profile_depth,
+        base_thickness = base_thickness,
+    );
 }
