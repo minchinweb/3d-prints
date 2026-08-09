@@ -6,8 +6,8 @@ include <base_coin.scad>
 /* [General] */
 // coin diamter, in mm. Design at this size
 diameter = 21;
-// thickness of wall around the edge of the coin, in mm
-edge_wall_thickness = 0.35;
+// thickness of wall around the edge of the coin, in mm  // was 0.35
+edge_wall_thickness = 0.66;
 // printer's layer height, in mm
 layer_height = 0.06;
 
@@ -39,7 +39,7 @@ name_delta_x = +0.6;
 name_delta_y = 0;
 
 /* [Coin Elements - Year] */
-year_image = "0033A Lily Sou Noir/Lily Elements/year A 2024 - 20241026.png";
+year_image = "0033A Lily Sou Noir/Lily Elements/year A 2024 - 20241026b.png";
 year_pixels = 300;
 year_rotate = 280;
 year_delta_x = 0.75;

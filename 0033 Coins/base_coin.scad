@@ -203,13 +203,9 @@ module _rim_side (
     delta_x = 0,
     delta_y = 0,
     add_rim = true,
-    head_profile_depth = 1,
-    tail_profile_depth = 1,
-    base_thickness = 1,
+    rim_height = 3,
 ) {
     if (add_rim) {
-        rim_height = head_profile_depth + base_thickness + tail_profile_depth;
-
         // edge wall
         color("blue")
         difference() {
@@ -306,26 +302,41 @@ module base_coin(
     tail_profile_depth = tail_profile_depth_layers * layer_height;
     base_thickness = base_thickness_layers * layer_height;
 
-    _tails_side(
-        coin_diameter = diameter,
-        profile_depth = tail_profile_depth,
-    );
+    rim_height = head_profile_depth + base_thickness + tail_profile_depth;
 
-    color("red")
-    translate(v = [diameter/2, diameter/2, tail_profile_depth - 0.025]) 
-    cylinder(h = base_thickness + 0.025 * 2, r = diameter/2);
+    intersection() {
+        union() {
+            _tails_side(
+                coin_diameter = diameter,
+                profile_depth = tail_profile_depth,
+            );
 
-    translate(v = [0, 0, tail_profile_depth + base_thickness]) 
-    _face_side(
-        coin_diameter = diameter,
-        profile_depth = head_profile_depth,
-        bust_mode = bust_mode,
-    );
+            color("red")
+            translate(v = [diameter/2, diameter/2, tail_profile_depth - 0.025]) 
+            cylinder(h = base_thickness + 0.025 * 2, r = diameter/2);
 
-    _rim_side(
-        coin_diameter = diameter,
-        head_profile_depth = head_profile_depth,
-        tail_profile_depth = tail_profile_depth,
-        base_thickness = base_thickness,
-    );
+            translate(v = [0, 0, tail_profile_depth + base_thickness]) 
+            _face_side(
+                coin_diameter = diameter,
+                profile_depth = head_profile_depth,
+                bust_mode = bust_mode,
+            );
+
+            _rim_side(
+                coin_diameter = diameter,
+                rim_height = rim_height,
+            );
+        }
+
+        translate(v = [
+            diameter / 2,
+            diameter / 2,
+            -1
+        ])
+        cylinder(
+            h = rim_height + 2,
+            r = diameter / 2,
+            $fn = cylinder_faces
+        );
+    }
 }
