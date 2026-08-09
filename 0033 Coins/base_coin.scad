@@ -13,10 +13,10 @@ module _face_side(
     add_rim = false,
     add_face = true,
     add_name = true,
-    profile_depth = 1,
+    profile_depth = 1,  // aka "face_profile_depth"
+    bust_mode = 0,  // 0 - PNG, 1 - STL
 ) {
-    master_scale = coin_diameter / diameter;
-    bust_xy_scale = coin_diameter / bust_pixels;
+    master_scale = coin_diameter / diameter; 
     name_xy_scale = coin_diameter / name_pixels;
     z_scale = profile_depth / 100;
     
@@ -37,9 +37,26 @@ module _face_side(
             coin_diameter / 2 + bust_delta_x * master_scale + delta_x,
             coin_diameter / 2 + bust_delta_y * master_scale + delta_y,
             base_thickness
-        ]) 
-        scale(v = [bust_xy_scale, bust_xy_scale, z_scale])
-            surface(file=bust_image, center=true);
+        ])
+
+        if (bust_mode == 0) {  // PNG
+            bust_xy_scale = coin_diameter / bust_pixels;
+            z_scale = profile_depth / 100;
+
+            scale(v = [bust_xy_scale, bust_xy_scale, z_scale])
+                surface(file=bust_image, center=true);
+        } else if (bust_mode == 1) {  // STL
+            bust_xy_scale = coin_diameter / bust_mm;
+            z_scale = profile_depth / bust_height;
+
+            echo(bust_xy_scale, z_scale);
+
+            translate([0, 0, bust_delta_z]) 
+            #rotate([270, 0, 0])
+            scale(v = [bust_xy_scale, z_scale, bust_xy_scale])
+            // scale(v = [0.25, 2, 0.25])
+                import(file = bust_stl, center=true);
+        }
     }
 
     if (add_name) {
@@ -186,11 +203,12 @@ module _rim_side (
     delta_x = 0,
     delta_y = 0,
     add_rim = true,
-    profile_depth = 1,
+    head_profile_depth = 1,
+    tail_profile_depth = 1,
     base_thickness = 1,
 ) {
     if (add_rim) {
-        rim_height = profile_depth * 2 + base_thickness;
+        rim_height = head_profile_depth + base_thickness + tail_profile_depth;
 
         // edge wall
         color("blue")
@@ -203,7 +221,7 @@ module _rim_side (
             cylinder(
                 h = rim_height,
                 r = coin_diameter / 2,
-                $fn=cylinder_faces
+                $fn = cylinder_faces
             );
 
             translate(v = [
@@ -214,7 +232,7 @@ module _rim_side (
             cylinder(
                 h = rim_height + 2,
                 r = coin_diameter / 2 - edge_wall_thickness,
-                $fn=cylinder_faces
+                $fn = cylinder_faces
             );
         }
     }
@@ -242,14 +260,20 @@ module base_coin(
     diameter = 21,  // coin diamter, in mm. Design at this size
     edge_wall_thickness = 0.35,  // thickness of wall around the edge of the coin, in mm
     layer_height = 0.06,  // printer's layer height, in mm
-    profile_depth_layers = 12,  // bas releif depth, in layers
+    head_profile_depth_layers = 12,  // for head profile depth, in layers
+    tail_profile_depth_layers = 12,  // bas releif depth, in layers, both sides
     base_thickness_layers = 4,  // center thickness, in layers
 
+    bust_mode = 0, // 0 - PNG, 1 - STL
     bust_image = "",  // (relative) path to bust image. Assumed to be square dimensions.
     bust_pixels = 300,  // size, in pixels, of bust image
+    bust_stl = "",  // (relative) path to bust STL
+    bust_mm = 84,  // size, in mm, of bust STL
+    bust_height = 1,
     bust_rotate = 0,
     bust_delta_x = 0,
     bust_delta_y = 0,
+    bust_delta_z = 0,
 
     name_image = "",
     name_pixels = 300,
@@ -278,27 +302,30 @@ module base_coin(
     cylinder_faces = 60, // for rendering
 
 ) {
-    profile_depth = profile_depth_layers * layer_height;
+    head_profile_depth = head_profile_depth_layers * layer_height;
+    tail_profile_depth = tail_profile_depth_layers * layer_height;
     base_thickness = base_thickness_layers * layer_height;
 
     _tails_side(
         coin_diameter = diameter,
-        profile_depth = profile_depth,
+        profile_depth = tail_profile_depth,
     );
 
     color("red")
-    translate(v = [diameter/2, diameter/2, profile_depth - 0.025]) 
+    translate(v = [diameter/2, diameter/2, tail_profile_depth - 0.025]) 
     cylinder(h = base_thickness + 0.025 * 2, r = diameter/2);
 
-    translate(v = [0, 0, profile_depth + base_thickness]) 
+    translate(v = [0, 0, tail_profile_depth + base_thickness]) 
     _face_side(
         coin_diameter = diameter,
-        profile_depth = profile_depth,
+        profile_depth = head_profile_depth,
+        bust_mode = bust_mode,
     );
 
     _rim_side(
         coin_diameter = diameter,
-        profile_depth = profile_depth,
+        head_profile_depth = head_profile_depth,
+        tail_profile_depth = tail_profile_depth,
         base_thickness = base_thickness,
     );
 }
