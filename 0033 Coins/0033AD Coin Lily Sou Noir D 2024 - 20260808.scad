@@ -15,7 +15,7 @@ layer_height = 0.06;
 head_profile_depth_layers = 24;  // ~1.44mm, in layers
 tail_profile_depth_layers = 12;
 // center thickness, in layers
-base_thickness_layers = 2;  // default 4; use base of bas relief profile
+base_thickness_layers = 1.83333;  // ~2, to match first prints  // default 4; use base of bas relief profile
 
 /* [Coin Elements - Bust] */
 // (relative) path to bust image. Assumed to be square dimensions.

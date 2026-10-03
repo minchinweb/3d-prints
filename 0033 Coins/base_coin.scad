@@ -4,13 +4,13 @@
 
 // sizing / values
 //
-// Sou Noir -- black "metal" -- 21mm
+// Sou Noir -- black "metal" -- 21 x 2.38mm -- 1/4d
 
 module _face_side(
     coin_diameter,
     delta_x = 0,
     delta_y = 0,
-    base_thickness = 0.1,
+    base_thickness = 0.12,
     add_base = false,
     add_rim = false,
     add_face = true,
