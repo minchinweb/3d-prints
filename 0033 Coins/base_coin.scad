@@ -1,4 +1,6 @@
 //  Create coin
+//
+// WM -- Updated 2026-09-07
 
 // sizing / values
 //
@@ -14,7 +16,8 @@ module _face_side(
     add_face = true,
     add_name = true,
     profile_depth = 1,  // aka "face_profile_depth"
-    bust_mode = 0,  // 0 - PNG, 1 - STL
+    bust_mode = 0,  // 0 - PNG, 1 - STL, 2 - text
+    bust_str = "",
 ) {
     master_scale = coin_diameter / diameter; 
     name_xy_scale = coin_diameter / name_pixels;
@@ -56,6 +59,16 @@ module _face_side(
             scale(v = [bust_xy_scale, z_scale, bust_xy_scale])
             // scale(v = [0.25, 2, 0.25])
                 import(file = bust_stl, center=true);
+        } else if (bust_mode == 2) {  // text
+            // translate([0, 0, 0])
+            linear_extrude(height = profile_depth)
+            text(
+                bust_str,
+                size = 2.5,
+                font = "B612",
+                halign = "center",
+                valign = "center"
+            );
         }
     }
 
@@ -111,12 +124,14 @@ module _tails_side(
     add_reverse = true,
     add_year = true,
     add_value = true,
+    add_value_2 = true,
     profile_depth = 1,
 ) {
     master_scale = coin_diameter / diameter;
     reverse_xy_scale = coin_diameter / reverse_pixels;
     year_xy_scale = coin_diameter / year_pixels;
     value_xy_scale = coin_diameter / value_pixels;
+    value_2_xy_scale = coin_diameter / value_2_pixels;
     z_scale = profile_depth / 100;
 
     // face "base"
@@ -164,6 +179,18 @@ module _tails_side(
         rotate([0, 180, 0])
         scale(v = [value_xy_scale, value_xy_scale, z_scale])
             surface(file=value_image, center=true);
+    }
+
+    if (add_value_2) {
+        translate(v = [
+            coin_diameter / 2 + value_2_delta_x * master_scale + delta_x,
+            coin_diameter / 2 + value_2_delta_y * master_scale + delta_y,
+            profile_depth
+        ])
+        rotate(a = value_2_rotate)
+        rotate([0, 180, 0])
+        scale(v = [value_2_xy_scale, value_2_xy_scale, z_scale])
+            surface(file=value_2_image, center=true);
     }
 
 
@@ -234,24 +261,6 @@ module _rim_side (
     }
 }
 
-
-module test_sizes() {
-    echo("** Running tests! **");
-    test_sizes = [16, 17, 18, 19, 21, 23, 24, 25, 27, 28, 31, 32, 38, 40];
-    test_offset = 42;
-
-    test_count = len(test_sizes) - 1;
-    for (i = [0:test_count]) {
-        test_size = test_sizes[i];
-        test_intro_str = str(str(i), " : ", str(test_size));
-        size_str = str(str(test_size), " mm");
-
-        echo(test_intro_str);
-
-        face_side(coin_diameter = test_size, delta_x = test_offset * i);
-    }
-}
-
 module base_coin(
     diameter = 21,  // coin diamter, in mm. Design at this size
     edge_wall_thickness = 0.35,  // thickness of wall around the edge of the coin, in mm
@@ -260,11 +269,12 @@ module base_coin(
     tail_profile_depth_layers = 12,  // bas releif depth, in layers, both sides
     base_thickness_layers = 4,  // center thickness, in layers
 
-    bust_mode = 0, // 0 - PNG, 1 - STL
+    bust_mode = 0, // 0 - PNG, 1 - STL, 2 - text
     bust_image = "",  // (relative) path to bust image. Assumed to be square dimensions.
     bust_pixels = 300,  // size, in pixels, of bust image
     bust_stl = "",  // (relative) path to bust STL
     bust_mm = 84,  // size, in mm, of bust STL
+    bust_str = "",  // string to place on the center on the coin in `bust_mode = 2`
     bust_height = 1,
     bust_rotate = 0,
     bust_delta_x = 0,
@@ -289,11 +299,19 @@ module base_coin(
     value_delta_x = 0,
     value_delta_y = 0,
 
+    value_2_image = "",
+    value_2_pixels = 300,
+    value_2_rotate = 0,
+    value_2_delta_x = 0,
+    value_2_delta_y = 0,
+
     reverse_image = "",
     reverse_pixels = 300,
     reverse_rotate = 0,
     reverse_delta_x = 0,
     reverse_delta_y = 0,
+
+    head_side_text = "",  // for `bust_mode = 2`
 
     cylinder_faces = 60, // for rendering
 
@@ -306,21 +324,27 @@ module base_coin(
 
     intersection() {
         union() {
-            _tails_side(
-                coin_diameter = diameter,
-                profile_depth = tail_profile_depth,
-            );
+            if (tail_profile_depth_layers > 0) {
+                _tails_side(
+                    coin_diameter = diameter,
+                    profile_depth = tail_profile_depth,
+                );
+            }
 
             color("red")
             translate(v = [diameter/2, diameter/2, tail_profile_depth - 0.025]) 
             cylinder(h = base_thickness + 0.025 * 2, r = diameter/2);
 
-            translate(v = [0, 0, tail_profile_depth + base_thickness]) 
-            _face_side(
-                coin_diameter = diameter,
-                profile_depth = head_profile_depth,
-                bust_mode = bust_mode,
-            );
+            if (head_profile_depth_layers > 0) {
+                translate(v = [0, 0, tail_profile_depth + base_thickness]) 
+                _face_side(
+                    coin_diameter = diameter,
+                    profile_depth = head_profile_depth,
+                    bust_mode = bust_mode,
+                    bust_str = bust_str,
+                    base_thickness = base_thickness,
+                );
+            }
 
             _rim_side(
                 coin_diameter = diameter,
