@@ -27,9 +27,9 @@ embossed_text_depth = 0.40; // 0.01
 
 /* [Bottom] */
 // text_bottom = "CHRISTMAS AT THE MINCHIN'S";
-text_bottom = "Christmas at the Minchin's";
+text_bottom = "Minchins at Jaffray 2026";
 // text_bottom = "CHRISTMAS AT THE SMITH'S";
-text_bottom_font = "Alice"; // [Cinzel, Kinta, "Alice", "Sanchez", "Yeseva One", "Poppins"]
+text_bottom_font = "Alice"; // [Cinzel, Kinta, "Alice", "Sanchez", "Yeseva One", "Poppins", "Eczar", "Amita"]
 text_bottom_size = 5;  // 0.1
 
 /* [More] */
@@ -40,8 +40,8 @@ module test_bottom(delta_y = 0, height = 0.5) {
         // "Cinzel",  // *
         // "Kinta",
 
-        // "Amita",
-        "Alice",  // *
+        "Amita",
+        // "Alice",  // *
         // "Prata",
         // "Sorts Mill Goudy",
         // "Lora",
@@ -51,9 +51,9 @@ module test_bottom(delta_y = 0, height = 0.5) {
         // "Linden Hill",
         // "Alegreya",
         // "Sanchez",  // *
-        // "Poppins",  // *
+        "Poppins",  // *  // B*
         // "Cormorant",
-        // "Eczar",
+        "Eczar",  // B*
         // "PT Serif",
         // "Cardo",
         // "Lora",
@@ -116,8 +116,9 @@ difference() {
     cube([card_width, card_depth + card_play, height * 2]);
 
     gen_bottom_text(
-        // delta_z = height - embossed_text_depth,
-        delta_z = height,
+        delta_y = text_bottom_size * 1,
+        delta_z = height - embossed_text_depth,
+        //delta_z = height,
         embossed_height = 100,
         width = card_width,
         my_text = text_bottom
@@ -129,12 +130,21 @@ difference() {
 // rotate(a = [-1 * card_slope, 0, 0]) 
 // cube([card_width, card_depth + card_play, height * 2]);
 
-gen_bottom_text(
-    delta_y = text_bottom_size * 1,
-    delta_z = height - embossed_text_depth,
-    // delta_z = height,
-    embossed_height = embossed_text_depth,
-    // embossed_height = 100,
-    width = card_width,
-    my_text = text_bottom
-);
+difference() {
+    gen_bottom_text(
+        delta_y = text_bottom_size * 1,
+        delta_z = height - embossed_text_depth,
+        // delta_z = height,
+        embossed_height = embossed_text_depth + 0.01,
+        // embossed_height = 100,
+        width = card_width,
+        my_text = text_bottom
+    );
+
+    
+    translate(v = [0, depth * 1/2 * 0.6, slot_bottom_clearance])
+    rotate(a = [-1 * card_slope, 0, 0]) 
+    cube([card_width, card_depth + card_play, height * 2]);
+}
+
+// test_bottom(delta_y=-10);

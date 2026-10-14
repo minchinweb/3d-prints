@@ -21,6 +21,8 @@ corner_radius = 3; // 0.1
 // likely want to set this as a multiple of your layer depth
 embossed_text_depth = 0.40; // 0.01
 
+design_choice = 1;  // 0 -- Christmas ribbon; 1 -- Family Reunion Tree
+
 
 /* [Logo] */
 text_w = "W";
@@ -296,7 +298,7 @@ module test_names(delta_y = 0, height = 0.5) {
     }
 }
 
-module test_graphics(delta_x = 0, delta_y = 0) {
+module test_graphics_christmas(delta_x = 0, delta_y = 0) {
     // graphics show to the positive x and positive y of the "root" point
 
     color("red")
@@ -415,7 +417,7 @@ module gen_text_name(
 
     line_length = (width - text_length - 2 * x_length) / 2;
 
-    echo("**");
+    echo("** -- text_lenght, x_length");
     echo(text_length);
     echo(x_length);
 
@@ -428,35 +430,99 @@ module gen_text_name(
     cube(size=[line_length, line_width, embossed_height]);
 }
 
+module gen_text_tree(
+        delta_x = 0,
+        delta_y = 0,
+        delta_z = 0,
+        embossed_height = 0.5,
+        width = 200
+    ) {
+    color("black")
+    translate(v = [delta_x + width / 2 - text_tree_x_offset, delta_y, delta_z])
+    linear_extrude(height = embossed_height) 
+    text(
+        text = text_tree_left,
+        size = text_tree_size,
+        font = text_tree_font,
+        halign = "right",
+        valign = "center"
+    );
+
+    color("black")
+    translate(v = [delta_x + width / 2 + text_tree_x_offset, delta_y, delta_z])
+    linear_extrude(height = embossed_height) 
+    text(
+        text = text_tree_right,
+        size = text_tree_size,
+        font = text_tree_font,
+        halign = "left",
+        valign = "center"
+    );
+}
+
+module gen_text_upline(
+        delta_x = 0,
+        delta_y = 0,
+        delta_z = 0,
+        embossed_height = 0.5,
+        width = 200
+    ) {
+    color("black")
+    translate(v = [delta_x + width / 2, -text_name_size * 0.6 + delta_y, delta_z])
+    linear_extrude(height = embossed_height) 
+    text(
+        text = text_name_2,
+        size = text_tree_size,
+        font = text_tree_font,
+        halign = "center",
+        valign = "center"
+    );
+}
+
+
 // Gives a multiplier to get the graphics to be the expected size
-function _graphics_scale(scale_percent=100, graphic_width=100, width=200)  = (
+function _graphics_scale(scale_percent = 100, graphic_width = 100, width = 200)  = (
     (width / graphic_width * scale_percent) / 100
 );
 
 module gen_ribbon(delta_y = 0, delta_z = 0, embossed_height = 0.5, width = 200, scale_percent = 50) {
     // need to translate to the bottom left corner
     my_scale = _graphics_scale(
-        scale_percent=scale_percent, graphic_width=graphic_width, width=width
+        scale_percent = scale_percent, graphic_width = xmas_graphic_width, width = width
     );
 
     color("red")
     translate(v = [width * (100 - scale_percent) / 100 / 2, delta_y, delta_z])
     scale(v = [my_scale, my_scale, 1])
     linear_extrude(height = embossed_height)
-    import(file=ribbon_svg);
+    import(file = ribbon_svg);
 }
 
 module gen_leaves(delta_y = 0, delta_z = 0, embossed_height = 0.5, width = 200, scale_percent = 50) {
     // need to translate to the bottom left corner
+
     my_scale = _graphics_scale(
-        scale_percent=scale_percent, graphic_width=graphic_width, width=width
+        scale_percent = scale_percent, graphic_width = xmas_graphic_width, width = width
     );
 
     color("ForestGreen")
     translate(v = [width * (100 - scale_percent) / 100 / 2, delta_y, delta_z])
     linear_extrude(height = embossed_height)
     scale(v = [my_scale, my_scale, 1])
-    import(file=leaves_svg);
+    import(file = leaves_svg);
+}
+
+module gen_tree(delta_y = 0, delta_z = 0, embossed_height = 0.5, width = 200, scale_percent = 40) {
+    // need to translate to the bottom left corner
+    my_scale = _graphics_scale(
+        scale_percent = scale_percent, graphic_width = tree_graphic_width, width = width
+    );
+
+    color("ForestGreen")
+    translate(v = [width * (100 - scale_percent) / 100 / 2 + tree_delta_x, delta_y, delta_z])
+    linear_extrude(height = embossed_height)
+    scale(v = [my_scale, my_scale, 1])
+    import(file = tree_svg);
 }
 
 // test_w();
@@ -473,59 +539,120 @@ module test_layout() {
     gen_text_wm(delta_x=8+5, delta_y=-6+17);
     gen_text_house(delta_x=50, delta_y=10);
     gen_text_name(delta_x = 0, delta_y=35, width=190);
-    gen_ribbon(delta_y = 50, width=190);
-    gen_leaves(delta_y = 50, width=190);
+    if (design_choice == 0) {  // Christmas ribbons
+        gen_ribbon(delta_y = 50, width=190);
+        gen_leaves(delta_y = 50, width=190);
+    }
 }
 
+// ------------------
+// Generate Name Tags
+// ------------------
 
-ribbon_height = 0.60;
-name_height = 0.4;
+module main() {
+    ribbon_height = 0.60;
+    name_height = 0.4;
 
-color("white")
-difference() {
-    roundedcube([width, height, depth], center = false, radius = corner_radius, apply_to = "z");
+    color("white")
+    difference() {
+        roundedcube([width, height, depth], center = false, radius = corner_radius, apply_to = "z");
+
+        gen_text_name(
+            delta_x = 0,
+            delta_y = height * name_height + delta_y_by_design,
+            delta_z = depth - embossed_text_depth,
+            embossed_height = embossed_text_depth,
+            width = width,
+            line_width = name_line_width,
+            my_name = text_name
+        );
+
+        if (design_choice == 0) {  // Christmas ribbons
+            gen_ribbon(
+                delta_y = height * ribbon_height,
+                delta_z = depth - embossed_text_depth,
+                embossed_height = embossed_text_depth,
+                width = width
+            );
+            gen_leaves(
+                delta_y = height * ribbon_height,
+                delta_z = depth - embossed_text_depth,
+                embossed_height = embossed_text_depth,
+                width = width
+            );
+        }
+
+        if (design_choice == 1) {  // Family Reunion Tree
+            gen_text_tree(
+                delta_y = text_tree_delta_y,
+                width = width,
+            );
+
+            gen_text_upline(
+                delta_y = text_upline_delta_y,
+                width = width,
+            );
+
+            gen_tree(
+                delta_y = height * ribbon_height + tree_delta_y,
+                delta_z = depth - embossed_text_depth,
+                embossed_height = embossed_text_depth,
+                width = width
+            );
+        }
+    }
 
     gen_text_name(
         delta_x = 0,
-        delta_y = height * name_height,
+        delta_y = height * name_height + delta_y_by_design,
         delta_z = depth - embossed_text_depth,
         embossed_height = embossed_text_depth,
         width = width,
         line_width = name_line_width,
-        my_name=text_name
+        my_name = text_name
     );
-    gen_ribbon(
-        delta_y = height * ribbon_height,
-        delta_z = depth - embossed_text_depth,
-        embossed_height = embossed_text_depth,
-        width=width
-    );
-    gen_leaves(
-        delta_y = height * ribbon_height,
-        delta_z = depth - embossed_text_depth,
-        embossed_height = embossed_text_depth,
-        width=width
-    );
+
+    if (design_choice == 0) {  // Christmas ribbons
+        gen_ribbon(
+            delta_y = height * ribbon_height,
+            delta_z = depth - embossed_text_depth,
+            embossed_height = embossed_text_depth,
+            width = width
+        );
+        gen_leaves(
+            delta_y = height * ribbon_height,
+            delta_z = depth - embossed_text_depth,
+            embossed_height = embossed_text_depth,
+            width = width
+        );
+    }
+
+    if (design_choice == 1) {  // Family Reunion Tree
+        gen_text_tree(
+            delta_y = text_tree_delta_y,
+            width = width,
+        );
+
+        gen_text_upline(
+            delta_y = text_upline_delta_y,
+            width = width,
+        );
+
+        gen_tree(
+            delta_y = height * ribbon_height + tree_delta_y,
+            delta_z = depth - embossed_text_depth,
+            embossed_height = embossed_text_depth,
+            width = width
+        );
+    }
 }
 
-gen_text_name(
-    delta_x = 0,
-    delta_y = height * name_height,
-    delta_z = depth - embossed_text_depth,
-    embossed_height = embossed_text_depth,
-    width = width,
-    line_width = name_line_width,
-    my_name=text_name
-);
-gen_ribbon(
-    delta_y = height * ribbon_height,
-    delta_z = depth - embossed_text_depth,
-    embossed_height = embossed_text_depth,
-    width=width
-);
-gen_leaves(
-    delta_y = height * ribbon_height,
-    delta_z = depth - embossed_text_depth,
-    embossed_height = embossed_text_depth,
-    width=width
-);
+main();
+
+//gen_tree(width=width);
+
+
+// // center bisect
+// color("red")
+// translate([width/2 - 0.1/2, -10, -1])
+// cube([0.1, 100, 2]);
