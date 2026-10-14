@@ -33,6 +33,10 @@
 //         -- assembly
 
 
+// Oct 14, 2026 -- 15:21 - 15:37 -- generate combined base model (previous
+//                                  model had the screw holes fail)
+
+
 // TODO:
 // - add top crossbar?
 // - pull hardware dimensions out into a separate library
@@ -1081,3 +1085,5 @@ assembly_book(exploded = 1);
 
 // book_support_upper();
 // book_support();
+
+// rim();
